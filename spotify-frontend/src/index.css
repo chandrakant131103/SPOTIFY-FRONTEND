@@ -91,3 +91,112 @@ input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; backgr
 input[type="range"]:hover { background: var(--spotify-green); }
 input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #ffffff; cursor: pointer; opacity: 0; transition: opacity 0.2s; }
 input[type="range"]:hover::-webkit-slider-thumb { opacity: 1; }
+
+
+
+
+/* --- Mobile Responsive View --- */
+@media (max-width: 768px) {
+  body {
+    overflow-y: auto; /* Allow scrolling on mobile */
+  }
+
+  .main-wrapper {
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+    height: auto;
+    /* Extra padding to prevent content from being hidden by fixed bars */
+    padding-bottom: 160px; 
+  }
+
+  /* 1. Transform Sidebar into a Fixed Bottom Nav */
+  .sidebar {
+    position: fixed;
+    bottom: 90px; /* Sits exactly on top of the player-bar */
+    left: 0;
+    width: 100%;
+    height: 70px;
+    z-index: 100;
+    flex-direction: row;
+    gap: 0;
+  }
+
+  .sidebar-panel {
+    flex-direction: row !important;
+    justify-content: space-around !important;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 12px;
+    border-radius: 0;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(18, 18, 18, 0.95) !important; /* Higher opacity for mobile readability */
+  }
+
+  .nav-item {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+    padding: 8px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .nav-icon {
+    font-size: 20px;
+  }
+
+  /* Hide secondary sidebar panels (like 'Create Album') on mobile */
+  .sidebar-panel:last-child {
+    display: none;
+  }
+
+  /* 2. Full Width Dashboard */
+  .dashboard-area {
+    border-radius: 0;
+    width: 100%;
+    overflow-y: visible; /* Let body handle the scroll */
+  }
+
+  /* 3. Grid Adjustment */
+  .song-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 cards per row */
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .song-card {
+    padding: 12px;
+  }
+
+  /* 4. Fixed Player Bar at the absolute bottom */
+  .player-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    z-index: 101;
+    background: #000000 !important; /* Solid black for better contrast */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* 5. Hide Volume on mobile to save space */
+  .player-bar .volume-container, 
+  .player-bar > div:last-child {
+    display: none !important;
+  }
+
+  /* Expand the center controls on mobile */
+  .player-bar > div:nth-child(2) {
+    width: 70% !important;
+  }
+
+  /* 6. Form Scaling */
+  .form-box {
+    width: 95%;
+    padding: 32px 24px;
+  }
+}
