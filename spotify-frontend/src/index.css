@@ -92,111 +92,122 @@ input[type="range"]:hover { background: var(--spotify-green); }
 input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #ffffff; cursor: pointer; opacity: 0; transition: opacity 0.2s; }
 input[type="range"]:hover::-webkit-slider-thumb { opacity: 1; }
 
-
-
-
-/* --- Mobile Responsive View --- */
+/* =========================================================
+   MOBILE RESPONSIVE VIEW (THE FIX)
+   ========================================================= */
 @media (max-width: 768px) {
+  /* 1. Unlock Scrolling: Let the whole body scroll naturally */
   body {
-    overflow-y: auto; /* Allow scrolling on mobile */
+    overflow-y: auto !important;
+    height: auto;
   }
 
+  .app-container {
+    height: auto;
+    display: block;
+  }
+
+  /* 2. The Safe Zone: Add 160px padding so the fixed bars don't hide the last songs */
   .main-wrapper {
     flex-direction: column;
     padding: 0;
-    gap: 0;
-    height: auto;
-    /* Extra padding to prevent content from being hidden by fixed bars */
-    padding-bottom: 160px; 
+    padding-bottom: 160px; /* 70px Nav + 90px Player */
+    overflow: visible;
   }
 
-  /* 1. Transform Sidebar into a Fixed Bottom Nav */
+  /* 3. Bottom Navigation: Turn the sidebar into a horizontal bar */
   .sidebar {
     position: fixed;
-    bottom: 90px; /* Sits exactly on top of the player-bar */
+    bottom: 90px; /* Sits directly on top of the player */
     left: 0;
     width: 100%;
     height: 70px;
-    z-index: 100;
+    z-index: 1000;
     flex-direction: row;
     gap: 0;
   }
 
-  .sidebar-panel {
+  /* Make only the first panel (Nav links) visible, hide the rest */
+  .sidebar-panel:nth-child(1) {
     flex-direction: row !important;
-    justify-content: space-around !important;
+    justify-content: space-around;
     align-items: center;
     width: 100%;
     height: 100%;
-    padding: 0 12px;
+    padding: 0;
     border-radius: 0;
+    background: rgba(10, 10, 10, 0.98) !important; /* High contrast */
     border: none;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(18, 18, 18, 0.95) !important; /* Higher opacity for mobile readability */
+  }
+
+  .sidebar-panel:nth-child(n+2) {
+    display: none !important;
   }
 
   .nav-item {
     flex-direction: column;
     gap: 4px;
-    font-size: 11px;
+    font-size: 10px;
     padding: 8px;
-    flex: 1;
+    margin: 0;
     justify-content: center;
   }
 
-  .nav-icon {
-    font-size: 20px;
-  }
-
-  /* Hide secondary sidebar panels (like 'Create Album') on mobile */
-  .sidebar-panel:last-child {
-    display: none;
-  }
-
-  /* 2. Full Width Dashboard */
+  /* 4. Dashboard Area takes full width */
   .dashboard-area {
-    border-radius: 0;
     width: 100%;
-    overflow-y: visible; /* Let body handle the scroll */
+    border-radius: 0;
+    overflow: visible;
   }
 
-  /* 3. Grid Adjustment */
+  .top-bar {
+    padding: 12px 16px;
+  }
+
+  /* 5. Mobile Grid: Force 2 cards per row so they don't look terrible */
   .song-grid {
-    grid-template-columns: repeat(2, 1fr); /* 2 cards per row */
+    grid-template-columns: repeat(2, 1fr) !important;
     gap: 12px;
     padding: 12px;
   }
 
-  .song-card {
-    padding: 12px;
-  }
-
-  /* 4. Fixed Player Bar at the absolute bottom */
+  /* 6. The Player Bar */
   .player-bar {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
     height: 90px;
-    z-index: 101;
-    background: #000000 !important; /* Solid black for better contrast */
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1001;
+    background: #000000 !important;
+    padding: 0 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: visible !important;
   }
 
-  /* 5. Hide Volume on mobile to save space */
-  .player-bar .volume-container, 
+  /* HIDE VOLUME ON MOBILE to make space for the Play/Pause buttons */
   .player-bar > div:last-child {
     display: none !important;
   }
 
-  /* Expand the center controls on mobile */
-  .player-bar > div:nth-child(2) {
-    width: 70% !important;
+  /* Give the Song Info section 40% of the screen */
+  .player-bar > div:nth-child(1) {
+    width: 40% !important; 
   }
 
-  /* 6. Form Scaling */
+  /* Give the Controls section 60% of the screen so buttons don't get cut off */
+  .player-bar > div:nth-child(2) {
+    width: 60% !important; 
+    padding-left: 10px;
+  }
+
+  /* Scale down the Auth Form */
   .form-box {
-    width: 95%;
-    padding: 32px 24px;
+    width: 90%;
+    padding: 30px 20px;
+    margin: 20px auto;
   }
 }
