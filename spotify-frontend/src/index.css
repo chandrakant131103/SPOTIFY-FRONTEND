@@ -95,8 +95,11 @@ input[type="range"]:hover::-webkit-slider-thumb { opacity: 1; }
 /* =========================================================
    MOBILE RESPONSIVE VIEW (THE FIX)
    ========================================================= */
+
+/* =========================================================
+   MOBILE RESPONSIVE VIEW (THE FINAL FIX)
+   ========================================================= */
 @media (max-width: 768px) {
-  /* 1. Unlock Scrolling: Let the whole body scroll naturally */
   body {
     overflow-y: auto !important;
     height: auto;
@@ -107,18 +110,17 @@ input[type="range"]:hover::-webkit-slider-thumb { opacity: 1; }
     display: block;
   }
 
-  /* 2. The Safe Zone: Add 160px padding so the fixed bars don't hide the last songs */
   .main-wrapper {
     flex-direction: column;
     padding: 0;
-    padding-bottom: 160px; /* 70px Nav + 90px Player */
+    padding-bottom: 170px; /* Safe space for nav + player */
     overflow: visible;
   }
 
-  /* 3. Bottom Navigation: Turn the sidebar into a horizontal bar */
+  /* Bottom Navigation */
   .sidebar {
     position: fixed;
-    bottom: 90px; /* Sits directly on top of the player */
+    bottom: 90px;
     left: 0;
     width: 100%;
     height: 70px;
@@ -127,7 +129,6 @@ input[type="range"]:hover::-webkit-slider-thumb { opacity: 1; }
     gap: 0;
   }
 
-  /* Make only the first panel (Nav links) visible, hide the rest */
   .sidebar-panel:nth-child(1) {
     flex-direction: row !important;
     justify-content: space-around;
@@ -136,14 +137,12 @@ input[type="range"]:hover::-webkit-slider-thumb { opacity: 1; }
     height: 100%;
     padding: 0;
     border-radius: 0;
-    background: rgba(10, 10, 10, 0.98) !important; /* High contrast */
+    background: rgba(10, 10, 10, 0.98) !important;
     border: none;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .sidebar-panel:nth-child(n+2) {
-    display: none !important;
-  }
+  .sidebar-panel:nth-child(n+2) { display: none !important; }
 
   .nav-item {
     flex-direction: column;
@@ -154,25 +153,16 @@ input[type="range"]:hover::-webkit-slider-thumb { opacity: 1; }
     justify-content: center;
   }
 
-  /* 4. Dashboard Area takes full width */
-  .dashboard-area {
-    width: 100%;
-    border-radius: 0;
-    overflow: visible;
-  }
+  .dashboard-area { width: 100%; border-radius: 0; overflow: visible; }
+  .top-bar { padding: 12px 16px; }
 
-  .top-bar {
-    padding: 12px 16px;
-  }
-
-  /* 5. Mobile Grid: Force 2 cards per row so they don't look terrible */
   .song-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 12px;
     padding: 12px;
   }
 
-  /* 6. The Player Bar */
+  /* --- THE PLAYER BAR FIX --- */
   .player-bar {
     position: fixed;
     bottom: 0;
@@ -181,33 +171,44 @@ input[type="range"]:hover::-webkit-slider-thumb { opacity: 1; }
     height: 90px;
     z-index: 1001;
     background: #000000 !important;
-    padding: 0 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    overflow: visible !important;
+    padding: 0 8px;
   }
 
-  /* HIDE VOLUME ON MOBILE to make space for the Play/Pause buttons */
-  .player-bar > div:last-child {
-    display: none !important;
+  /* 1. Left (Image & Text): Take up 35% of space */
+  .player-left {
+    width: 35% !important;
+  }
+  
+  .player-left img {
+    width: 40px !important;
+    height: 40px !important;
   }
 
-  /* Give the Song Info section 40% of the screen */
-  .player-bar > div:nth-child(1) {
-    width: 40% !important; 
+  /* 2. Center (Play/Pause & Seek): Take up 45% of space */
+  .player-center {
+    width: 45% !important;
   }
 
-  /* Give the Controls section 60% of the screen so buttons don't get cut off */
-  .player-bar > div:nth-child(2) {
-    width: 60% !important; 
-    padding-left: 10px;
+  .player-controls {
+    gap: 12px !important; /* Bring buttons closer so they fit */
+  }
+  
+  /* Hide the timestamps on mobile to save space, but keep the seek bar */
+  .player-seek span {
+    display: none; 
   }
 
-  /* Scale down the Auth Form */
-  .form-box {
-    width: 90%;
-    padding: 30px 20px;
-    margin: 20px auto;
+  /* 3. Right (Volume): Take up 20% of space */
+  .player-right {
+    width: 20% !important;
+    gap: 4px !important;
   }
+
+  /* Shrink the volume slider so it doesn't push play buttons off screen */
+  .volume-slider {
+    width: 40px !important;
+  }
+
+  /* Form Box fix */
+  .form-box { width: 90%; padding: 30px 20px; margin: 20px auto; }
 }
