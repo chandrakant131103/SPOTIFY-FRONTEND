@@ -1,0 +1,95 @@
+/* --- Progress/Seek Bar Micro-interactions --- */
+.progress-container {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  transition: height 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.progress-container:hover {
+  height: 6px; /* Slightly thicker on hover */
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--spotify-green);
+  border-radius: 4px;
+  position: relative;
+  transition: width 0.1s linear;
+}
+
+/* The "Handle" that appears only on hover */
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.progress-container:hover .progress-bar-fill::after {
+  opacity: 1;
+}
+
+/* --- Volume "Unroll" Interaction --- */
+.volume-control {
+  display: flex;
+  align-items: center;
+  width: auto;
+}
+
+.volume-icon {
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s, transform 0.2s;
+  z-index: 2;
+}
+
+.volume-icon:hover {
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.volume-slider-wrapper {
+  width: 0; /* Hidden by default */
+  overflow: hidden;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth sliding effect */
+  display: flex;
+  align-items: center;
+}
+
+.volume-control:hover .volume-slider-wrapper {
+  width: 100px; /* Expands on hover */
+  margin-left: 12px;
+}
+
+/* --- Visualizer Container --- */
+.visualizer-container {
+  position: absolute;
+  top: -60px; /* Floats above the player bar */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none; /* Don't block clicks */
+}
+
+/* Optional: Neon Glow for Visualizer Bars */
+canvas {
+  filter: drop-shadow(0 0 8px var(--spotify-green));
+}
