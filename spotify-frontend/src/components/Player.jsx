@@ -11,23 +11,17 @@ export default function Player({ currentSong }) {
     
     const DEFAULT_COVER = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=400&auto=format&fit=crop";
 
-    // Re-sync playback when song changes
     useEffect(() => {
         if (currentSong && audioRef.current) {
-            audioRef.current.load(); // Force browser to acknowledge new source
-            audioRef.current.play()
-                .then(() => setIsPlaying(true))
-                .catch(err => console.log("Manual play required"));
+            audioRef.current.play();
+            setIsPlaying(true);
         }
     }, [currentSong]);
 
     const togglePlayPause = () => {
         if (!audioRef.current) return;
-        if (isPlaying) {
-            audioRef.current.pause();
-        } else {
-            audioRef.current.play();
-        }
+        if (isPlaying) audioRef.current.pause();
+        else audioRef.current.play();
         setIsPlaying(!isPlaying);
     };
 
@@ -54,55 +48,37 @@ export default function Player({ currentSong }) {
     };
 
     if (!currentSong) return (
-        <div style={{ width: '100%', textAlign: 'center', color: '#a7a7a7', padding: '20px' }}>
+        <div style={{ width: '100%', textAlign: 'center', color: '#a7a7a7', fontSize: '14px', fontWeight: '600' }}>
             Select a track to start listening
         </div>
     );
 
     return (
-        <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px' }}>
-            {/* IMPORTANT: Use audioUrl to match your ImageKit backend */}
-            <audio 
-                ref={audioRef} 
-                src={currentSong.audioUrl} 
-                onTimeUpdate={handleTimeUpdate} 
-                onLoadedMetadata={handleLoadedMetadata} 
-                onEnded={() => setIsPlaying(false)} 
-            />
+        <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <audio ref={audioRef} src={currentSong.uri} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setIsPlaying(false)} />
 
-            {/* Left: Info */}
+            {/* Left: Now Playing Info with Image */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', width: '30%' }}>
-                <img 
-                    src={currentSong.coverUrl || DEFAULT_COVER} 
-                    alt="Cover" 
-                    style={{ width: '56px', height: '56px', borderRadius: '4px', objectFit: 'cover' }} 
-                />
+                <img src={DEFAULT_COVER} alt="Cover" style={{ width: '56px', height: '56px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} />
                 <div style={{ overflow: 'hidden' }}>
-                    <h4 style={{ fontSize: '14px', margin: 0, color: 'white' }}>{currentSong.title}</h4>
-                    <p style={{ fontSize: '12px', color: '#a7a7a7', margin: 0 }}>{currentSong.artist?.username}</p>
+                    <h4 style={{ fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.title}</h4>
+                    <p style={{ fontSize: '12px', color: '#a7a7a7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.artist?.username}</p>
                 </div>
             </div>
             
             {/* Center: Controls */}
             <div style={{ width: '40%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px', color: '#b3b3b3' }}>
-                    <FaStepBackward size={16} style={{ cursor: 'pointer' }} />
+                    <FaStepBackward size={16} style={{ cursor: 'pointer' }} className="hover:text-white" />
                     <div onClick={togglePlayPause} style={{ cursor: 'pointer', color: 'white' }}>
-                        {isPlaying ? <FaPauseCircle size={36} /> : <FaPlayCircle size={36} />}
+                        {isPlaying ? <FaPauseCircle size={36} className="hover:scale-105" /> : <FaPlayCircle size={36} className="hover:scale-105" />}
                     </div>
-                    <FaStepForward size={16} style={{ cursor: 'pointer' }} />
+                    <FaStepForward size={16} style={{ cursor: 'pointer' }} className="hover:text-white" />
                 </div>
                 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', fontSize: '12px', color: '#a7a7a7' }}>
                     <span>{formatTime(currentTime)}</span>
-                    <input 
-                        type="range" 
-                        min="0" 
-                        max={duration || 100} 
-                        value={currentTime} 
-                        onChange={handleSeek} 
-                        style={{ flex: 1, accentColor: '#1DB954' }} 
-                    />
+                    <input type="range" min="0" max={duration || 100} value={currentTime} onChange={handleSeek} style={{ flex: 1 }} />
                     <span>{formatTime(duration)}</span>
                 </div>
             </div>
@@ -110,15 +86,7 @@ export default function Player({ currentSong }) {
             {/* Right: Volume */}
             <div style={{ width: '30%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px', color: '#a7a7a7' }}>
                 {volume === 0 ? <FiVolumeX size={20} /> : <FiVolume2 size={20} />}
-                <input 
-                    type="range" 
-                    min="0" 
-                    max="1" 
-                    step="0.01" 
-                    value={volume} 
-                    onChange={handleVolume} 
-                    style={{ width: '100px', accentColor: '#1DB954' }} 
-                />
+                <input type="range" min="0" max="1" step="0.01" value={volume} onChange={handleVolume} style={{ width: '100px' }} />
             </div>
         </div>
     );
