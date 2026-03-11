@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FiVolume2, FiVolumeX } from "react-icons/fi";
 import { FaPlayCircle, FaPauseCircle, FaStepBackward, FaStepForward } from "react-icons/fa";
+import Visualizer from './Visualizer'; // 👈 Import Visualizer
+import '../styles/Player.css'; // 👈 Import the CSS we wrote
 
 export default function Player({ currentSong }) {
     const audioRef = useRef(null);
@@ -13,7 +15,8 @@ export default function Player({ currentSong }) {
 
     useEffect(() => {
         if (currentSong && audioRef.current) {
-            audioRef.current.play();
+            // Browsers often require a user gesture before auto-playing
+            audioRef.current.play().catch(err => console.log("Playback blocked:", err));
             setIsPlaying(true);
         }
     }, [currentSong]);
@@ -54,39 +57,71 @@ export default function Player({ currentSong }) {
     );
 
     return (
-        <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <audio ref={audioRef} src={currentSong.uri} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setIsPlaying(false)} />
-
-            {/* Left: Now Playing Info with Image */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', width: '30%' }}>
-                <img src={DEFAULT_COVER} alt="Cover" style={{ width: '56px', height: '56px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} />
-                <div style={{ overflow: 'hidden' }}>
-                    <h4 style={{ fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.title}</h4>
-                    <p style={{ fontSize: '12px', color: '#a7a7a7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.artist?.username}</p>
-                </div>
-            </div>
+        <div className="player-bar-container" style={{ width: '100%', position: 'relative' }}>
             
-            {/* Center: Controls */}
-            <div style={{ width: '40%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', color: '#b3b3b3' }}>
-                    <FaStepBackward size={16} style={{ cursor: 'pointer' }} className="hover:text-white" />
-                    <div onClick={togglePlayPause} style={{ cursor: 'pointer', color: 'white' }}>
-                        {isPlaying ? <FaPauseCircle size={36} className="hover:scale-105" /> : <FaPlayCircle size={36} className="hover:scale-105" />}
+            {/* 1. THE VISUALIZER: Place it floating above the bar */}
+            <div className="visualizer-container">
+                <Visualizer audioRef={audioRef} isPlaying={isPlaying} />
+            </div>
+
+            <audio 
+                ref={audioRef} 
+                src={currentSong.audioUrl} // 👈 Updated to match your backend field
+                onTimeUpdate={handleTimeUpdate} 
+                onLoadedMetadata={handleLoadedMetadata} 
+                onEnded={() => setIsPlaying(false)} 
+            />
+
+            <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                
+                {/* Left: Dynamic Image Mapping */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', width: '30%' }}>
+                    <img 
+                        src={currentSong.coverUrl || DEFAULT_COVER} // 👈 Multiple Covers fix
+                        alt="Cover" 
+                        style={{ width: '56px', height: '56px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0 }} 
+                    />
+                    <div style={{ overflow: 'hidden' }}>
+                        <h4 style={{ fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.title}</h4>
+                        <p style={{ fontSize: '12px', color: '#a7a7a7' }}>{currentSong.artist?.username}</p>
                     </div>
-                    <FaStepForward size={16} style={{ cursor: 'pointer' }} className="hover:text-white" />
                 </div>
                 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', fontSize: '12px', color: '#a7a7a7' }}>
-                    <span>{formatTime(currentTime)}</span>
-                    <input type="range" min="0" max={duration || 100} value={currentTime} onChange={handleSeek} style={{ flex: 1 }} />
-                    <span>{formatTime(duration)}</span>
+                {/* Center: Controls & Professional Seek Bar */}
+                <div style={{ width: '40%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', color: '#b3b3b3' }}>
+                        <FaStepBackward size={18} className="icon-btn" style={{ cursor: 'pointer' }} />
+                        <div onClick={togglePlayPause} style={{ cursor: 'pointer', color: 'white' }}>
+                            {isPlaying ? <FaPauseCircle size={40} /> : <FaPlayCircle size={40} />}
+                        </div>
+                        <FaStepForward size={18} className="icon-btn" style={{ cursor: 'pointer' }} />
+                    </div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', fontSize: '11px', color: '#a7a7a7' }}>
+                        <span>{formatTime(currentTime)}</span>
+                        {/* 👈 Replaced standard input with the CSS-enhanced progress-container */}
+                        <div className="progress-container" style={{ flex: 1, position: 'relative' }}>
+                             <input 
+                                type="range" 
+                                min="0" 
+                                max={duration || 100} 
+                                value={currentTime} 
+                                onChange={handleSeek} 
+                                className="styled-seek-bar"
+                             />
+                             <div className="progress-bar-fill" style={{ width: `${(currentTime/duration)*100}%` }}></div>
+                        </div>
+                        <span>{formatTime(duration)}</span>
+                    </div>
                 </div>
-            </div>
 
-            {/* Right: Volume */}
-            <div style={{ width: '30%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px', color: '#a7a7a7' }}>
-                {volume === 0 ? <FiVolumeX size={20} /> : <FiVolume2 size={20} />}
-                <input type="range" min="0" max="1" step="0.01" value={volume} onChange={handleVolume} style={{ width: '100px' }} />
+                {/* Right: Unrolling Volume Control */}
+                <div className="volume-control" style={{ width: '30%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                    {volume === 0 ? <FiVolumeX size={20} /> : <FiVolume2 size={20} className="volume-icon" />}
+                    <div className="volume-slider-wrapper">
+                        <input type="range" min="0" max="1" step="0.01" value={volume} onChange={handleVolume} style={{ width: '100px' }} />
+                    </div>
+                </div>
             </div>
         </div>
     );
