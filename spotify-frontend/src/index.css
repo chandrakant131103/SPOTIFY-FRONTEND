@@ -189,3 +189,37 @@ input[type="range"]:hover::-webkit-slider-thumb { opacity: 1; }
     background: rgba(18, 18, 18, 0.95) !important; /* Higher opacity for readability */
   }
 }
+
+
+.volume-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+/* The slider is hidden or transparent by default */
+.volume-slider {
+  width: 0;
+  opacity: 0;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+/* On hover of the container, the slider expands and fades in */
+.volume-container:hover .volume-slider {
+  width: 100px;
+  opacity: 1;
+  margin-left: 10px;
+}
+
+.volume-icon {
+  cursor: pointer;
+  font-size: 20px;
+  transition: transform 0.2s;
+}
+
+.volume-icon:hover {
+  transform: scale(1.1);
+  color: var(--spotify-green);
+}
