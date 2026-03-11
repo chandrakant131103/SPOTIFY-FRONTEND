@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FiVolume2, FiVolumeX } from "react-icons/fi";
 import { FaPlayCircle, FaPauseCircle, FaStepBackward, FaStepForward } from "react-icons/fa";
 import Visualizer from './Visualizer'; // 👈 Import Visualizer
-import '../styles/Player.css'; // 👈 Import the CSS we wrote
+import '../assets/player.css'; // 👈 Import the CSS we wrote
 
 export default function Player({ currentSong }) {
     const audioRef = useRef(null);
