@@ -57,8 +57,8 @@ export default function Player({ currentSong }) {
         <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <audio ref={audioRef} src={currentSong.uri} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setIsPlaying(false)} />
 
-            {/* Left: Now Playing Info with Image */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', width: '30%' }}>
+            {/* Left: Now Playing Info */}
+            <div className="player-left" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                 <img src={DEFAULT_COVER} alt="Cover" style={{ width: '56px', height: '56px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} />
                 <div style={{ overflow: 'hidden' }}>
                     <h4 style={{ fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.title}</h4>
@@ -67,8 +67,8 @@ export default function Player({ currentSong }) {
             </div>
             
             {/* Center: Controls */}
-            <div style={{ width: '40%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', color: '#b3b3b3' }}>
+            <div className="player-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <div className="player-controls" style={{ display: 'flex', alignItems: 'center', gap: '20px', color: '#b3b3b3' }}>
                     <FaStepBackward size={16} style={{ cursor: 'pointer' }} className="hover:text-white" />
                     <div onClick={togglePlayPause} style={{ cursor: 'pointer', color: 'white' }}>
                         {isPlaying ? <FaPauseCircle size={36} className="hover:scale-105" /> : <FaPlayCircle size={36} className="hover:scale-105" />}
@@ -76,7 +76,7 @@ export default function Player({ currentSong }) {
                     <FaStepForward size={16} style={{ cursor: 'pointer' }} className="hover:text-white" />
                 </div>
                 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', fontSize: '12px', color: '#a7a7a7' }}>
+                <div className="player-seek" style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', fontSize: '12px', color: '#a7a7a7' }}>
                     <span>{formatTime(currentTime)}</span>
                     <input type="range" min="0" max={duration || 100} value={currentTime} onChange={handleSeek} style={{ flex: 1 }} />
                     <span>{formatTime(duration)}</span>
@@ -84,9 +84,9 @@ export default function Player({ currentSong }) {
             </div>
 
             {/* Right: Volume */}
-            <div style={{ width: '30%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px', color: '#a7a7a7' }}>
+            <div className="player-right" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px', color: '#a7a7a7' }}>
                 {volume === 0 ? <FiVolumeX size={20} /> : <FiVolume2 size={20} />}
-                <input type="range" min="0" max="1" step="0.01" value={volume} onChange={handleVolume} style={{ width: '100px' }} />
+                <input type="range" min="0" max="1" step="0.01" value={volume} onChange={handleVolume} className="volume-slider" style={{ width: '100px' }} />
             </div>
         </div>
     );
