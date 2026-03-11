@@ -1,5 +1,5 @@
 import Visualizer from './Visualizer'; // Import the new component
-import '../styles/Player.css';         // Import the hover effects
+import '../src/Player.css';         // Import the hover effects
 
 const Player = () => {
   const audioRef = useRef(null);
