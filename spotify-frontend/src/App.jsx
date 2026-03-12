@@ -4,7 +4,7 @@ import api from './api/axiosConfig';
 import { GoHomeFill, GoSearch } from "react-icons/go";
 import { VscLibrary } from "react-icons/vsc";
 import { FiHeart, FiTrendingUp, FiPlusSquare, FiExternalLink } from "react-icons/fi";
-import { BsSoundwave } from "react-icons/bs";
+import { BsSoundwave, BsUpload } from "react-icons/bs"; // Added Upload Icon
 
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
@@ -57,12 +57,21 @@ function App() {
                             <h1 style={{ fontSize: '28px', fontWeight: '900', margin: 0, letterSpacing: '-1.5px' }}>Pulse</h1>
                         </div>
                         
+                        {/* Dynamic Main Nav based on Role */}
                         <div className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
-                            <GoHomeFill className="nav-icon"/> Home
+                            {user.role === 'artist' ? (
+                                <><BsUpload className="nav-icon" /> Upload Track</>
+                            ) : (
+                                <><GoHomeFill className="nav-icon"/> Home</>
+                            )}
                         </div>
-                        <div className={`nav-item ${activeTab === 'search' ? 'active' : ''}`} onClick={() => setActiveTab('search')}>
-                            <GoSearch className="nav-icon"/> Discover
-                        </div>
+                        
+                        {/* ⚡ ONLY Listeners can see the Search/Discover Tab */}
+                        {user.role === 'user' && (
+                            <div className={`nav-item ${activeTab === 'search' ? 'active' : ''}`} onClick={() => setActiveTab('search')}>
+                                <GoSearch className="nav-icon"/> Discover
+                            </div>
+                        )}
                     </div>
 
                     <div className="sidebar-panel" style={{ flex: 1 }}>
@@ -101,7 +110,6 @@ function App() {
                         <div style={{ color: '#8b5cf6', fontWeight: '900', letterSpacing: '2px', fontSize: '11px' }}>PULSE PREMIUM</div>
                         
                         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                            {/* The Brand New Role Badge */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.03)', padding: '6px 16px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.05)' }}>
                                 <span style={{ fontWeight: '700', fontSize: '14px' }}>{user.username}</span>
                                 <span style={{
@@ -118,11 +126,11 @@ function App() {
                     </div>
 
                     <div className="content-padding">
+                        {/* ⚡ Completely Removed Search from Artist Routing */}
                         {user.role === 'artist' ? (
                             <>
                                 {activeTab === 'home' && <UploadMusic />}
                                 {activeTab === 'create-album' && <CreateAlbum />}
-                                {activeTab === 'search' && <Search setCurrentSong={setCurrentSong} />}
                             </>
                         ) : (
                             <>
@@ -131,7 +139,6 @@ function App() {
                                 {activeTab === 'library' && <Library setCurrentSong={setCurrentSong} />}
                                 {activeTab === 'liked' && <LikedSongs setCurrentSong={setCurrentSong} />}
                                 
-                                {/* ⚡ PULSE BRANDED CHARTS */}
                                 {activeTab === 'charts' && (
                                     <div style={{ paddingBottom: '40px' }}>
                                         <h2 style={{ fontSize: '48px', fontWeight: '900', marginBottom: '8px', color: '#fff', letterSpacing: '-1px' }}>Pulse Charts</h2>
@@ -142,7 +149,7 @@ function App() {
                                                 { title: "Pulse Global 50", desc: "The definitive list of the biggest tracks right now.", link: "https://open.spotify.com/playlist/37i9dQZEVXbMDoHDwVN2tF", color: "linear-gradient(135deg, #8b5cf6 0%, #4c1d95 100%)" },
                                                 { title: "Viral Synths", desc: "Electronic tracks trending across the internet.", link: "https://open.spotify.com/playlist/37i9dQZEVXbLiRSasKsOU9", color: "linear-gradient(135deg, #ec4899 0%, #9d174d 100%)" },
                                                 { title: "Deep Focus", desc: "Ambient sounds to lock in and get things done.", link: "https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ", color: "linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%)" },
-                                                { title: "Neon Nights", desc: "The ultimate midnight driving playlist.", link: "https://open.spotify.com/playlist/37i9dQZF1DXdOEFt9ZX0dh", color: "linear-gradient(135deg, #14b8a6 0%, #0f766e 100%)" }
+                                                { title: "Neon Nights", desc: "The ultimate midnight driving playlist.", link: "https://open.spotify.com/playlist/37i9dQZF1DXdLEN7aqioJC", color: "linear-gradient(135deg, #14b8a6 0%, #0f766e 100%)" }
                                             ].map((chart, index) => (
                                                 <a key={index} href={chart.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
                                                     <div 
