@@ -9,8 +9,6 @@ export default function Player({ currentSong }) {
     const [duration, setDuration] = useState(0);
     const [volume, setVolume] = useState(1);
     
-    const DEFAULT_COVER = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=400&auto=format&fit=crop";
-
     useEffect(() => {
         if (currentSong && audioRef.current) {
             audioRef.current.play();
@@ -53,16 +51,21 @@ export default function Player({ currentSong }) {
         </div>
     );
 
+    // 🔥 THE FIX: Generate the unique cover for the currently playing song
+    const coverImage = currentSong.coverUrl || `https://picsum.photos/seed/${currentSong._id}/400/400`;
+
     return (
         <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <audio ref={audioRef} src={currentSong.uri} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setIsPlaying(false)} />
 
             {/* Left: Now Playing Info */}
             <div className="player-left" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <img src={DEFAULT_COVER} alt="Cover" style={{ width: '56px', height: '56px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} />
+                {/* ⚡ Replaced DEFAULT_COVER with coverImage here */}
+                <img src={coverImage} alt="Cover" style={{ width: '56px', height: '56px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} />
+                
                 <div style={{ overflow: 'hidden' }}>
                     <h4 style={{ fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.title}</h4>
-                    <p style={{ fontSize: '12px', color: '#a7a7a7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.artist?.username}</p>
+                    <p style={{ fontSize: '12px', color: '#a7a7a7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.artist?.username || 'Unknown Artist'}</p>
                 </div>
             </div>
             
