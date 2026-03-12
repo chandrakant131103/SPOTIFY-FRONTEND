@@ -1,14 +1,12 @@
-const CACHE_NAME = 'pulse-v1';
-
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// This fetch listener is mandatory for the "Install" button to appear
+self.addEventListener('activate', (event) => {
+  event.waitUntil(clients.claim());
+});
+
+// Mandatory for PWA Install button to show up
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    fetch(event.request).catch(() => {
-      return caches.match(event.request);
-    })
-  );
+  // Can be empty, but MUST exist
 });
