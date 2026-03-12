@@ -28,6 +28,7 @@ export default function Dashboard({ setCurrentSong }) {
         try {
             const response = await api.post(`/music/like/${songId}`);
             setLikedIds(response.data.likedSongs);
+            // Removed the toast popup. The heart color changing is enough!
         } catch (error) {
             console.error("Failed to toggle like", error);
         }
@@ -38,14 +39,13 @@ export default function Dashboard({ setCurrentSong }) {
             <h2 className="section-title">Made for You</h2>
             <div className="song-grid">
                 {songs.map(song => {
-                    // 🔥 THE TRICK: Generate a unique image based on the song's ID!
+                    // 🔥 Generate unique image based on song ID
                     const uniqueCover = `https://picsum.photos/seed/${song._id}/400/400`;
 
                     return (
                         <div key={song._id} className="song-card" onClick={() => setCurrentSong(song)}>
                             <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '6px', overflow: 'hidden', position: 'relative', marginBottom: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
                                 
-                                {/* 1. Use the song's actual coverUrl, OR fallback to the unique generated image */}
                                 <img 
                                     src={song.coverUrl || uniqueCover} 
                                     alt="Cover" 
@@ -59,7 +59,7 @@ export default function Dashboard({ setCurrentSong }) {
                                     className="hover:scale-110"
                                 >
                                     {likedIds.includes(song._id) ? (
-                                        <FaHeart size={18} color="#1DB954" />
+                                        <FaHeart size={18} color="#8b5cf6" /> /* ⚡ Neon Violet Heart */
                                     ) : (
                                         <FiHeart size={18} color="#ffffff" />
                                     )}
