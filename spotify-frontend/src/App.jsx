@@ -5,7 +5,8 @@ import api from './api/axiosConfig';
 import { GoHome, GoHomeFill, GoSearch } from "react-icons/go";
 import { VscLibrary } from "react-icons/vsc";
 import { FiPlusSquare, FiHeart } from "react-icons/fi";
-import { FaSpotify } from "react-icons/fa";
+// 1. Swapped FaSpotify for BsSoundwave
+import { BsSoundwave } from "react-icons/bs"; 
 
 // Components
 import Auth from './components/Auth';
@@ -43,9 +44,39 @@ function App() {
                 {/* Modern Sidebar */}
                 <div className="sidebar">
                     <div className="sidebar-panel">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                            <FaSpotify size={32} />
-                            <h2 style={{ fontSize: '20px', fontWeight: '700' }}>Spotify</h2>
+                        
+                        {/* 2. The New Pulse Logo! */}
+                        <div 
+                          className="brand-logo" 
+                          style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '12px', 
+                            marginBottom: '32px',
+                            cursor: 'pointer',
+                            padding: '0 8px'
+                          }}
+                        >
+                          <div style={{ 
+                            background: '#1DB954', /* Change this to #3b82f6 if you want a blue theme! */
+                            padding: '6px', 
+                            borderRadius: '8px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center' 
+                          }}>
+                            <BsSoundwave size={24} color="#000000" />
+                          </div>
+                          
+                          <h1 style={{ 
+                            fontSize: '24px', 
+                            fontWeight: '800', 
+                            color: '#ffffff', 
+                            letterSpacing: '-0.5px',
+                            margin: 0
+                          }}>
+                            Pulse
+                          </h1>
                         </div>
                         
                         <div 
