@@ -1,12 +1,17 @@
+const CACHE_NAME = 'pulse-v1';
+
+// Install event: activates the service worker immediately
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
+// Activate event: takes control of the page immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(clients.claim());
 });
 
-// This is the "magic" line that makes the Install button appear
+// Fetch event: Mandatory for the "Install" button to appear in Chrome
 self.addEventListener('fetch', (event) => {
-  // Logic can be empty, but the listener must exist
+  // We leave this empty to allow normal network behavior 
+  // while still satisfying PWA requirements.
 });
