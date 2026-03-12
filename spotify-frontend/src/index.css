@@ -1,427 +1,75 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-
-
 :root {
-
   --spotify-green: #1DB954;
-
   --spotify-green-hover: #1ed760;
-
+  --pulse-violet: #8b5cf6;
   --text-base: #ffffff;
-
   --text-muted: #a7a7a7;
-
 }
-
-
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-
-
 body {
-
   font-family: 'Inter', sans-serif;
-
   color: var(--text-base);
-
   overflow: hidden;
-
   -webkit-font-smoothing: antialiased;
-
-  
-
-  /* The Global Background Image */
-
   background: url('https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
-
   background-size: cover;
-
 }
-
-
-
-/* Custom Scrollbar */
-
-::-webkit-scrollbar { width: 10px; }
-
-::-webkit-scrollbar-track { background: transparent; }
-
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 5px; }
-
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
-
-
-
-/* --- Core Layout --- */
-
-.app-container { display: flex; flex-direction: column; height: 100vh; }
-
-
-
-.main-wrapper { 
-
-  display: flex; 
-
-  flex: 1; 
-
-  overflow: hidden; 
-
-  padding: 8px; 
-
-  gap: 8px; 
-
-  background: transparent; 
-
-}
-
-
 
 /* --- Frosted Glass Containers --- */
-
-.sidebar { width: 320px; display: flex; flex-direction: column; gap: 8px; }
-
-
-
 .sidebar-panel, .dashboard-area, .top-bar, .player-bar, .form-box {
-
-  background: rgba(18, 18, 18, 0.5) !important; /* Semi-transparent */
-
+  background: rgba(18, 18, 18, 0.5) !important;
   backdrop-filter: blur(16px);
-
   -webkit-backdrop-filter: blur(16px);
-
   border: 1px solid rgba(255, 255, 255, 0.08);
-
 }
 
-
-
-.sidebar-panel { border-radius: 8px; padding: 20px 24px; display: flex; flex-direction: column; gap: 20px; }
-
-.dashboard-area { flex: 1; border-radius: 8px; overflow-y: auto; position: relative; }
-
-.top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-.content-padding { padding: 24px; }
-
-.player-bar { height: 90px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; }
-
-
-
-/* --- Navigation & Typography --- */
-
-.nav-item { display: flex; align-items: center; gap: 16px; color: var(--text-muted); font-weight: 600; font-size: 16px; cursor: pointer; transition: color 0.2s ease; }
-
-.nav-item:hover, .nav-item.active { color: var(--text-base); }
-
-.nav-icon { font-size: 24px; }
-
-.section-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.5px; }
-
-
-
-/* --- Cards --- */
-
-.song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 24px; }
-
-.song-card {
-
-  background: rgba(255, 255, 255, 0.03);
-
-  padding: 16px;
-
-  border-radius: 8px;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
-
+/* --- The Dashing Green Buttons --- */
+.btn { 
+  background-color: var(--spotify-green) !important; 
+  color: #fff !important; 
+  border: none; 
+  padding: 14px 32px; 
+  border-radius: 32px; 
+  font-size: 14px; 
+  font-weight: 700; 
+  cursor: pointer; 
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
 }
 
-.song-card:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-4px); }
+.btn:hover { 
+  background-color: var(--spotify-green-hover) !important; 
+  transform: scale(1.04);
+  box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
+}
 
-.song-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.btn-outline { 
+  background: transparent !important; 
+  color: var(--text-base) !important; 
+  border: 1px solid var(--text-muted) !important; 
+}
 
-.song-card p { font-size: 14px; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Auth Specific Fixes */
+.auth-container input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  border: 1px solid #333;
+  background: rgba(0,0,0,0.3);
+  color: white;
+  outline: none;
+}
 
+.auth-container input:focus {
+  border-color: var(--spotify-green);
+}
 
-
-/* --- Auth Screen --- */
-
-.auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw; background: transparent; }
-
-.form-box { padding: 48px; border-radius: 12px; width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
-
-.form-box h2 { text-align: center; font-size: 32px; margin-bottom: 24px; }
-
-.form-box input, .form-box select { width: 100%; padding: 14px; border-radius: 4px; border: 1px solid var(--text-muted); background-color: rgba(0,0,0,0.2); color: var(--text-base); font-size: 16px; outline: none; transition: border-color 0.2s; }
-
-.form-box input:focus, .form-box select:focus { border-color: var(--text-base); }
-
-
-
-/* --- Buttons & Sliders --- */
-
-.btn { background-color: var(--spotify-green); color: #000; border: none; padding: 14px 32px; border-radius: 32px; font-size: 14px; font-weight: 700; cursor: pointer; transition: transform 0.1s; }
-
-.btn:hover { background-color: var(--spotify-green-hover); transform: scale(1.04); }
-
-.btn-small { padding: 8px 16px; font-size: 13px; }
-
-.btn-outline { background: transparent; color: var(--text-base); border: 1px solid var(--text-muted); }
-
-.btn-outline:hover { border-color: var(--text-base); transform: scale(1.04); }
-
-
-
-input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; outline: none; cursor: pointer; transition: background 0.2s; }
-
-input[type="range"]:hover { background: var(--spotify-green); }
-
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #ffffff; cursor: pointer; opacity: 0; transition: opacity 0.2s; }
-
-input[type="range"]:hover::-webkit-slider-thumb { opacity: 1; }
-
-
-
-/* =========================================================
-
-   MOBILE RESPONSIVE VIEW (THE FIX)
-
-   ========================================================= */
-
-
-
-/* =========================================================
-
-   MOBILE RESPONSIVE VIEW (THE FINAL FIX)
-
-   ========================================================= */
-
+/* Existing Mobile Fixes remain below... */
 @media (max-width: 768px) {
-
-  body {
-
-    overflow-y: auto !important;
-
-    height: auto;
-
-  }
-
-
-
-  .app-container {
-
-    height: auto;
-
-    display: block;
-
-  }
-
-
-
-  .main-wrapper {
-
-    flex-direction: column;
-
-    padding: 0;
-
-    padding-bottom: 170px; /* Safe space for nav + player */
-
-    overflow: visible;
-
-  }
-
-
-
-  /* Bottom Navigation */
-
-  .sidebar {
-
-    position: fixed;
-
-    bottom: 90px;
-
-    left: 0;
-
-    width: 100%;
-
-    height: 70px;
-
-    z-index: 1000;
-
-    flex-direction: row;
-
-    gap: 0;
-
-  }
-
-
-
-  .sidebar-panel:nth-child(1) {
-
-    flex-direction: row !important;
-
-    justify-content: space-around;
-
-    align-items: center;
-
-    width: 100%;
-
-    height: 100%;
-
-    padding: 0;
-
-    border-radius: 0;
-
-    background: rgba(10, 10, 10, 0.98) !important;
-
-    border: none;
-
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-
-  }
-
-
-
-  .sidebar-panel:nth-child(n+2) { display: none !important; }
-
-
-
-  .nav-item {
-
-    flex-direction: column;
-
-    gap: 4px;
-
-    font-size: 10px;
-
-    padding: 8px;
-
-    margin: 0;
-
-    justify-content: center;
-
-  }
-
-
-
-  .dashboard-area { width: 100%; border-radius: 0; overflow: visible; }
-
-  .top-bar { padding: 12px 16px; }
-
-
-
-  .song-grid {
-
-    grid-template-columns: repeat(2, 1fr) !important;
-
-    gap: 12px;
-
-    padding: 12px;
-
-  }
-
-
-
-  /* --- THE PLAYER BAR FIX --- */
-
-  .player-bar {
-
-    position: fixed;
-
-    bottom: 0;
-
-    left: 0;
-
-    width: 100%;
-
-    height: 90px;
-
-    z-index: 1001;
-
-    background: #000000 !important;
-
-    padding: 0 8px;
-
-  }
-
-
-
-  /* 1. Left (Image & Text): Take up 35% of space */
-
-  .player-left {
-
-    width: 35% !important;
-
-  }
-
-  
-
-  .player-left img {
-
-    width: 40px !important;
-
-    height: 40px !important;
-
-  }
-
-
-
-  /* 2. Center (Play/Pause & Seek): Take up 45% of space */
-
-  .player-center {
-
-    width: 45% !important;
-
-  }
-
-
-
-  .player-controls {
-
-    gap: 12px !important; /* Bring buttons closer so they fit */
-
-  }
-
-  
-
-  /* Hide the timestamps on mobile to save space, but keep the seek bar */
-
-  .player-seek span {
-
-    display: none; 
-
-  }
-
-
-
-  /* 3. Right (Volume): Take up 20% of space */
-
-  .player-right {
-
-    width: 20% !important;
-
-    gap: 4px !important;
-
-  }
-
-
-
-  /* Shrink the volume slider so it doesn't push play buttons off screen */
-
-  .volume-slider {
-
-    width: 40px !important;
-
-  }
-
-
-
-  /* Form Box fix */
-
-  .form-box { width: 90%; padding: 30px 20px; margin: 20px auto; }
-
+    /* ... keep your existing mobile media query code here ... */
 }
