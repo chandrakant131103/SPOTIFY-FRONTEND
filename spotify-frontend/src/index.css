@@ -79,44 +79,66 @@ body {
 /* =========================================================
    MOBILE RESPONSIVE
    ========================================================= */
+/* =========================================================
+   MOBILE RESPONSIVE (Auth Fix & Scroll Unlock)
+   ========================================================= */
 @media (max-width: 768px) {
-  .dashboard-area { border-radius: 0; padding-bottom: 160px; }
-  .main-wrapper { flex-direction: column; padding: 0; gap: 0; }
-  .content-padding { padding: 16px; }
-
-  /* Grid Fix for Mobile: 2 items per row */
-  .song-grid { 
-    grid-template-columns: repeat(2, 1fr) !important; 
-    gap: 16px; 
+  /* 1. UNLOCK THE BODY: Allow vertical scrolling on mobile */
+  body { 
+    overflow-y: auto !important; 
+    height: auto !important; 
   }
 
-  .song-card { padding: 10px; }
-
-  /* Bottom Navigation */
-  .sidebar {
-    position: fixed;
-    bottom: 0; left: 0; width: 100%; height: 70px;
-    flex-direction: row; background: #000 !important;
-    z-index: 2000;
+  .app-container { 
+    height: auto !important; 
+    min-height: 100vh; 
+    overflow: visible !important; 
   }
-  
-  .sidebar-panel {
+
+  /* 2. AUTH CONTAINER: Allow it to be taller than the screen */
+  .auth-container {
     display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%; padding: 0 !important; border: none; background: transparent !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important; /* Prevents centering things off-screen */
+    align-items: center !important;
+    padding: 60px 20px !important; /* Space for the top and bottom */
+    min-height: 100vh;
+    width: 100vw;
+    overflow-y: auto !important; 
+    -webkit-overflow-scrolling: touch; /* Smooth sliding on iPhone */
   }
 
-  .brand-logo, .sidebar-panel:nth-child(n+2) { display: none !important; }
-  .nav-item { flex-direction: column; font-size: 10px; gap: 4px; padding: 5px; flex: 1; }
-  .nav-icon { font-size: 20px; }
+  /* Hide the desktop hero text to bring the form higher up */
+  .auth-hero-text, 
+  .auth-container > div:first-child:not(.form-box) { 
+    display: none !important; 
+  }
 
-  .player-bar {
-    position: fixed;
-    bottom: 70px; left: 0; width: 100%; height: 80px;
-    margin: 0; border-radius: 0;
-    background: rgba(10,10,10,0.95) !important;
-    padding: 0 16px;
+  /* 3. FORM BOX: Ensure it doesn't get cut off */
+  .form-box, 
+  div[style*="width: 450px"],
+  div[style*="maxWidth: 450px"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 30px 20px !important;
+    margin: 0 auto !important;
+    background: rgba(10, 10, 10, 0.95) !important;
+    border-radius: 16px !important;
+    position: relative !important;
+    z-index: 10;
+  }
+
+  /* 4. DASHBOARD FIX: Keep the main app locked, only scroll auth */
+  .main-wrapper { 
+    flex-direction: column; 
+    padding: 0; 
+    height: calc(100vh - 70px); /* Height minus bottom nav */
+  }
+
+  .dashboard-area { 
+    border-radius: 0; 
+    padding-bottom: 180px; 
   }
 }
+ 
+
