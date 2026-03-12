@@ -40,7 +40,7 @@ export default function Dashboard({ setCurrentSong }) {
             <div className="song-grid">
                 {songs.map(song => {
                     // 🔥 Generate unique image based on song ID
-                    const uniqueCover = `https://picsum.photos/seed/${song._id}/400/400`;
+                    const uniqueCover = `https://picsum.photos/seed/${song._id}/800/800`;
 
                     return (
                         <div key={song._id} className="song-card" onClick={() => setCurrentSong(song)}>
