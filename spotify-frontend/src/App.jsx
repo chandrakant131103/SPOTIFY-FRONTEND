@@ -5,7 +5,6 @@ import api from './api/axiosConfig';
 import { GoHome, GoHomeFill, GoSearch } from "react-icons/go";
 import { VscLibrary } from "react-icons/vsc";
 import { FiPlusSquare, FiHeart } from "react-icons/fi";
-// 1. Swapped FaSpotify for BsSoundwave
 import { BsSoundwave } from "react-icons/bs"; 
 
 // Components
@@ -31,7 +30,7 @@ function App() {
         } finally {
             setUser(null);
             setCurrentSong(null);
-            setActiveTab('home'); // Reset tab on logout
+            setActiveTab('home'); 
         }
     };
 
@@ -45,27 +44,27 @@ function App() {
                 <div className="sidebar">
                     <div className="sidebar-panel">
                         
-                        {/* 2. The New Pulse Logo! */}
+                        {/* Premium Pulse Logo */}
                         <div 
                           className="brand-logo" 
                           style={{ 
                             display: 'flex', 
                             alignItems: 'center', 
                             gap: '12px', 
-                            marginBottom: '32px',
+                            marginBottom: '20px',
                             cursor: 'pointer',
                             padding: '0 8px'
                           }}
                         >
                           <div style={{ 
-                            background: '#1DB954', /* Change this to #3b82f6 if you want a blue theme! */
+                            background: '#8b5cf6', /* Neon Violet */
                             padding: '6px', 
                             borderRadius: '8px', 
                             display: 'flex', 
                             alignItems: 'center', 
                             justifyContent: 'center' 
                           }}>
-                            <BsSoundwave size={24} color="#000000" />
+                            <BsSoundwave size={24} color="#ffffff" />
                           </div>
                           
                           <h1 style={{ 
@@ -77,6 +76,43 @@ function App() {
                           }}>
                             Pulse
                           </h1>
+                        </div>
+
+                        {/* --- DASHING FEATURE: CATEGORY CHIPS --- */}
+                        <div style={{ 
+                            display: 'flex', 
+                            flexWrap: 'wrap', 
+                            gap: '8px', 
+                            marginBottom: '24px',
+                            padding: '0 8px' 
+                        }}>
+                            {['Chill', 'Rock', 'Energy', 'Focus'].map((genre) => (
+                                <span 
+                                    key={genre} 
+                                    style={{ 
+                                        padding: '6px 14px', 
+                                        background: 'rgba(255,255,255,0.05)', 
+                                        borderRadius: '20px', 
+                                        fontSize: '11px', 
+                                        fontWeight: '700',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '1px',
+                                        cursor: 'pointer',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseOver={(e) => {
+                                        e.target.style.background = '#8b5cf6';
+                                        e.target.style.borderColor = '#8b5cf6';
+                                    }}
+                                    onMouseOut={(e) => {
+                                        e.target.style.background = 'rgba(255,255,255,0.05)';
+                                        e.target.style.borderColor = 'rgba(255,255,255,0.1)';
+                                    }}
+                                >
+                                    {genre}
+                                </span>
+                            ))}
                         </div>
                         
                         <div 
@@ -121,16 +157,27 @@ function App() {
                 <div className="dashboard-area">
                     <div className="top-bar">
                         <div style={{ visibility: 'hidden' }}>Navigation Arrows</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                            {/* Premium Status Badge */}
+                            <div style={{ 
+                                padding: '4px 12px', 
+                                borderRadius: '20px', 
+                                border: '1px solid #8b5cf6', 
+                                color: '#8b5cf6', 
+                                fontSize: '10px', 
+                                fontWeight: '900',
+                                letterSpacing: '1px' 
+                            }}>
+                                PREMIUM
+                            </div>
                             <span style={{ fontSize: '14px', fontWeight: '700', textTransform: 'capitalize' }}>
-                                {user.username} <span style={{ color: '#1DB954', fontSize: '12px' }}>({user.role})</span>
+                                {user.username} <span style={{ color: '#8b5cf6', fontSize: '12px' }}>({user.role})</span>
                             </span>
                             <button className="btn btn-small btn-outline" onClick={handleLogout}>Log out</button>
                         </div>
                     </div>
 
                     <div className="content-padding">
-                        {/* --- ROUTING LOGIC --- */}
                         {user.role === 'artist' ? (
                             <>
                                 {activeTab === 'home' && <UploadMusic />}
@@ -149,7 +196,7 @@ function App() {
                 </div>
             </div>
 
-            {/* Bottom Player (Only visible to listeners) */}
+            {/* Bottom Player */}
             {user.role === 'user' && (
                 <div className="player-bar">
                     <Player currentSong={currentSong} />
