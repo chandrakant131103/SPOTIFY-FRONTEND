@@ -18,77 +18,38 @@ body {
   background-size: cover;
 }
 
-/* Glass Panels */
-.sidebar-panel, .dashboard-area, .top-bar, .player-bar, .form-box {
-  background: rgba(18, 18, 18, 0.6) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
+/* --- Core Layout --- */
 .app-container { display: flex; flex-direction: column; height: 100vh; }
 .main-wrapper { display: flex; flex: 1; overflow: hidden; padding: 8px; gap: 8px; }
+
+/* --- Glass Panels --- */
+.sidebar-panel, .dashboard-area, .top-bar, .player-bar {
+  background: rgba(18, 18, 18, 0.6) !important;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .sidebar { width: 300px; display: flex; flex-direction: column; gap: 8px; }
 .sidebar-panel { border-radius: 12px; padding: 24px; }
 .dashboard-area { flex: 1; border-radius: 12px; overflow-y: auto; }
-.player-bar { height: 90px; padding: 0 24px; display: flex; align-items: center; margin: 0 8px 8px 8px; border-radius: 12px; }
+.top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; position: sticky; top: 0; z-index: 10; }
+.player-bar { height: 90px; padding: 0 24px; display: flex; align-items: center; border-radius: 12px; margin: 0 8px 8px 8px; }
 
-/* --- DASHING: HOVER PREVIEW & TILT --- */
-.song-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 16px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* --- Navigation & Chips --- */
+.nav-item { display: flex; align-items: center; gap: 16px; color: var(--text-muted); font-weight: 700; font-size: 15px; cursor: pointer; transition: color 0.2s; }
+.nav-item:hover, .nav-item.active { color: var(--text-base); }
+.nav-icon { font-size: 24px; }
 
-.song-card:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-8px);
-}
+.genre-chip { padding: 6px 12px; background: rgba(255,255,255,0.05); border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; }
+.genre-chip:hover { background: var(--spotify-green); border-color: var(--spotify-green); }
 
-.song-card::after {
-  content: '▶';
-  position: absolute;
-  right: 25px;
-  bottom: 85px;
-  width: 48px;
-  height: 48px;
-  background: var(--spotify-green);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: black;
-  font-size: 18px;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-  z-index: 5;
-}
+/* --- Cards --- */
+.song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 24px; padding: 10px; }
+.song-card { background: rgba(255, 255, 255, 0.03); padding: 16px; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+.song-card:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-5px); }
 
-.song-card:hover::after {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* --- DASHING: PULSE ANIMATION --- */
-@keyframes pulse-glow {
-  0% { box-shadow: 0 0 5px rgba(139, 92, 246, 0.4); border-color: rgba(139, 92, 246, 0.2); }
-  50% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.8); border-color: rgba(139, 92, 246, 0.6); }
-  100% { box-shadow: 0 0 5px rgba(139, 92, 246, 0.4); border-color: rgba(139, 92, 246, 0.2); }
-}
-
-.playing-glow {
-  animation: pulse-glow 2s infinite ease-in-out;
-  border: 2px solid var(--pulse-violet);
-}
-
-/* Shared Components */
-.btn { background: var(--spotify-green); color: #fff; border: none; padding: 12px 28px; border-radius: 30px; font-weight: 800; cursor: pointer; transition: 0.2s; }
-.btn:hover { transform: scale(1.05); background: var(--spotify-green-hover); }
-
-.auth-input { width: 100%; padding: 16px; border-radius: 8px; border: 1px solid #333; background: #000; color: white; margin-bottom: 16px; outline: none; }
-.auth-input:focus { border-color: var(--spotify-green); }
+/* --- Buttons & Inputs --- */
+.btn { background-color: var(--spotify-green) !important; color: #fff !important; border: none; padding: 12px 30px; border-radius: 30px; font-weight: 800; cursor: pointer; }
+.btn-outline { background: transparent !important; color: #fff !important; border: 1px solid var(--text-muted) !important; }
+.auth-input { width: 100%; padding: 16px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; margin-bottom: 16px; outline: none; }
