@@ -39,7 +39,7 @@ export default function Library({ setCurrentSong }) {
                     {/* Album Header with Dynamic Image */}
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '24px', marginBottom: '32px' }}>
                         <img 
-                            src={selectedAlbum.coverUrl || `https://picsum.photos/seed/${selectedAlbum._id}/400/400`} 
+                            src={selectedAlbum.coverUrl || `https://picsum.photos/seed/${selectedAlbum._id}/800/800`} 
                             alt="Album Cover" 
                             style={{ width: '200px', height: '200px', borderRadius: '8px', boxShadow: '0 8px 32px rgba(0,0,0,0.6)', objectFit: 'cover' }} 
                         />
