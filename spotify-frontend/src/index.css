@@ -6,21 +6,22 @@
   --pulse-secondary: #ec4899;
   --text-base: #ffffff;
   --text-muted: #a7a7a7;
-  --glass-bg: rgba(10, 10, 10, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(10, 10, 10, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.1);
 }
 
+/* --- Base Reset --- */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'Inter', sans-serif;
   color: var(--text-base);
   overflow: hidden;
-  background: url('https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
+  background: #000 url('https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
   background-size: cover;
 }
 
-/* Glass Panels */
+/* --- Glass Panels --- */
 .sidebar-panel, .dashboard-area, .top-bar, .player-bar, .form-box {
   background: var(--glass-bg) !important;
   backdrop-filter: blur(25px);
@@ -28,6 +29,7 @@ body {
   border: 1px solid var(--glass-border);
 }
 
+/* --- Main Layout --- */
 .app-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
 .main-wrapper { display: flex; flex: 1; overflow: hidden; padding: 8px; gap: 8px; }
 .sidebar { width: 300px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
@@ -36,13 +38,12 @@ body {
 .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; position: sticky; top: 0; z-index: 100; }
 .content-padding { padding: 32px; }
 
-/* ⚡ SONG CARD & IMAGE FIXES ⚡ */
+/* --- Song Grid & Cards --- */
 .song-grid { 
   display: grid; 
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
   gap: 24px; 
 }
-
 .song-card {
   background: rgba(255, 255, 255, 0.03);
   padding: 16px;
@@ -51,80 +52,129 @@ body {
   cursor: pointer;
   border: 1px solid transparent;
 }
-
 .song-card:hover {
   background: rgba(255, 255, 255, 0.07);
   transform: translateY(-5px);
   border-color: var(--pulse-primary);
 }
-
 .song-card img {
   width: 100%;
-  aspect-ratio: 1 / 1; /* Forces a perfect square */
-  object-fit: cover;   /* Prevents stretching */
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
   border-radius: 8px;
   margin-bottom: 12px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.3);
 }
 
-/* Navigation */
+/* --- Nav & Buttons --- */
 .nav-item { display: flex; align-items: center; gap: 16px; color: var(--text-muted); font-weight: 700; cursor: pointer; padding: 10px 0; }
 .nav-item.active { color: #fff; }
 .nav-icon { font-size: 24px; }
 
-/* Buttons & Inputs */
-.btn { background: var(--pulse-primary); color: #fff; border: none; padding: 12px 24px; border-radius: 50px; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4); }
+.btn { 
+  background: var(--pulse-primary) !important; 
+  color: #fff !important; 
+  border: none; 
+  padding: 12px 24px; 
+  border-radius: 50px; 
+  font-weight: 800; 
+  cursor: pointer; 
+  transition: 0.3s; 
+  text-transform: uppercase; 
+  width: 100%;
+}
+
+.auth-input { 
+  width: 100%; 
+  padding: 14px; 
+  border-radius: 8px; 
+  border: 1px solid #333; 
+  background: rgba(0,0,0,0.8); 
+  color: #fff; 
+  margin-bottom: 12px; 
+  outline: none; 
+}
 
 /* =========================================================
-   MOBILE RESPONSIVE
+   MOBILE RESPONSIVE (THE FINAL FIX)
    ========================================================= */
-
 @media (max-width: 768px) {
-  /* 1. Reset the entire screen behavior */
+  /* 1. Force Scroll Unlock */
   html, body {
     overflow-y: auto !important;
     height: auto !important;
     position: relative;
   }
 
-  /* 2. Force the Auth Container to be scrollable */
+  /* 2. Auth Container Fix */
   .auth-container {
-    position: relative !important;
-    display: block !important; /* Switch from flex to block to allow natural scrolling */
-    width: 100vw !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
     min-height: 100vh !important;
-    padding: 20px 10px 100px 10px !important; /* Extra bottom padding */
+    padding: 40px 20px 100px 20px !important;
+    background: #000 !important;
     overflow-y: auto !important;
-    background: #000 !important; /* Solid black background to debug visibility */
   }
 
-  /* 3. Force the Form Box to appear at the top */
-  .form-box, 
-  div[style*="width: 450px"],
-  div[id="auth-form-wrapper"] {
-    position: relative !important;
-    top: 0 !important;
-    margin: 40px auto !important; /* Pushes it down slightly from the top bar */
-    width: 95% !important;
-    max-width: 100% !important;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    z-index: 9999 !important;
-  }
-
-  /* Hide the hero/side image on mobile so it doesn't block the form */
-  .auth-container > div:first-child, 
-  .auth-hero-section {
+  /* 3. NUCLEAR HIDE: Hides the massive surfer hero text blocking the form */
+  .auth-container > div:first-child:not(.form-box),
+  .auth-hero-section,
+  [class*="hero"], [class*="Hero"] {
     display: none !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
-  /* 4. Ensure inputs are large enough to tap */
-  .auth-input {
-    height: 55px !important;
-    font-size: 16px !important; /* Prevents iOS auto-zoom */
+  /* 4. Form Box visibility */
+  .form-box, div[style*="width: 450px"], div[style*="maxWidth: 450px"] {
+    width: 100% !important;
+    max-width: 400px !important;
+    padding: 24px !important;
+    background: rgba(20, 20, 20, 0.95) !important;
+    border-radius: 16px !important;
+    margin: 0 auto !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+  }
+
+  /* 5. App Layout Fixes */
+  .main-wrapper { flex-direction: column; padding: 0; gap: 0; }
+  .dashboard-area { border-radius: 0; padding-bottom: 160px; }
+  .top-bar { padding: 12px; border-bottom: 1px solid var(--glass-border); }
+
+  /* Bottom Navigation */
+  .sidebar {
+    position: fixed;
+    bottom: 0; left: 0; width: 100%; height: 65px;
+    flex-direction: row; background: #000 !important;
+    border-top: 1px solid var(--glass-border);
+    z-index: 2000;
+  }
+  .sidebar-panel {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-around;
+    width: 100%; padding: 0 !important; border: none !important;
+  }
+  .brand-logo, .sidebar-panel:nth-child(n+2), .mobile-hide { display: none !important; }
+  .nav-item { flex-direction: column; font-size: 10px; gap: 4px; padding: 5px; flex: 1; }
+  .nav-icon { font-size: 20px; }
+
+  /* Player Bar */
+  .player-bar {
+    position: fixed;
+    bottom: 65px; left: 0; width: 100%; height: 75px;
+    margin: 0; border-radius: 0;
+    background: rgba(15, 15, 15, 0.98) !important;
+    padding: 0 16px;
+  }
+  .player-right, .player-seek { display: none !important; }
+  
+  /* Album Grid Fix */
+  .song-grid { 
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: 12px !important; 
   }
 }
- 
-
