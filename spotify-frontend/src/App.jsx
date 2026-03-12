@@ -7,14 +7,13 @@ import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import Player from './components/Player';
 import Search from './components/Search';
-import LikedSongs from './components/LikedSongs';
 import Library from './components/Library';
+import LikedSongs from './components/LikedSongs';
 
 function App() {
     const [user, setUser] = useState(null);
     const [currentSong, setCurrentSong] = useState(null);
     const [activeTab, setActiveTab] = useState('home');
-    const [searchQuery, setSearchQuery] = useState('');
 
     if (!user) return <Auth setUser={setUser} />;
 
@@ -23,21 +22,21 @@ function App() {
             <div className="main-wrapper">
                 <div className="sidebar">
                     <div className="sidebar-panel">
-                        <div className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                            <div style={{ background: '#1DB954', padding: '6px', borderRadius: '8px' }}><BsSoundwave size={24} color="#fff" /></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                            <div style={{ background: '#8b5cf6', padding: '6px', borderRadius: '8px' }}><BsSoundwave size={24} color="#fff" /></div>
                             <h1 style={{ fontSize: '24px', fontWeight: '800', margin: 0 }}>Pulse</h1>
                         </div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
                             {['Chill', 'Rock', 'Energy', 'Focus'].map(genre => (
-                                <span key={genre} onClick={() => { setSearchQuery(genre); setActiveTab('search'); }} className="genre-chip">{genre}</span>
+                                <span key={genre} className="genre-chip">{genre}</span>
                             ))}
                         </div>
-                        <div className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}><GoHomeFill className="nav-icon"/> Home</div>
-                        <div className={`nav-item ${activeTab === 'search' ? 'active' : ''}`} onClick={() => setActiveTab('search')}><GoSearch className="nav-icon"/> Search</div>
+                        <div className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}><GoHomeFill size={24}/> Home</div>
+                        <div className={`nav-item ${activeTab === 'search' ? 'active' : ''}`} onClick={() => setActiveTab('search')}><GoSearch size={24}/> Search</div>
                     </div>
                     <div className="sidebar-panel" style={{ flex: 1 }}>
-                        <div className={`nav-item ${activeTab === 'library' ? 'active' : ''}`} onClick={() => setActiveTab('library')}><VscLibrary className="nav-icon"/> Library</div>
-                        <div className={`nav-item ${activeTab === 'liked' ? 'active' : ''}`} onClick={() => setActiveTab('liked')}><FiHeart className="nav-icon"/> Liked Songs</div>
+                        <div className={`nav-item ${activeTab === 'library' ? 'active' : ''}`} onClick={() => setActiveTab('library')}><VscLibrary size={24}/> Your Albums</div>
+                        <div className={`nav-item ${activeTab === 'liked' ? 'active' : ''}`} onClick={() => setActiveTab('liked')}><FiHeart size={24}/> Liked Songs</div>
                     </div>
                 </div>
 
@@ -48,7 +47,7 @@ function App() {
                     </div>
                     <div className="content-padding">
                         {activeTab === 'home' && <Dashboard setCurrentSong={setCurrentSong} />}
-                        {activeTab === 'search' && <Search setCurrentSong={setCurrentSong} externalQuery={searchQuery} />}
+                        {activeTab === 'search' && <Search setCurrentSong={setCurrentSong} />}
                         {activeTab === 'library' && <Library setCurrentSong={setCurrentSong} />}
                         {activeTab === 'liked' && <LikedSongs setCurrentSong={setCurrentSong} />}
                     </div>
