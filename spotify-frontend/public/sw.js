@@ -1,5 +1,3 @@
-const CACHE_NAME = 'pulse-v1';
-
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
@@ -8,9 +6,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(clients.claim());
 });
 
-// CRITICAL: Chrome needs this listener to show the "Install" icon
+// This is the "magic" line that makes the Install button appear
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
-  );
+  // Logic can be empty, but the listener must exist
 });
