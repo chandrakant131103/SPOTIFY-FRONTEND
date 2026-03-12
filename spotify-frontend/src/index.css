@@ -1,58 +1,296 @@
-import React, { useState } from 'react';
-import api from '../api/axiosConfig';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-export default function Auth({ setUser }) {
-    const [isLogin, setIsLogin] = useState(false); 
-    const [formData, setFormData] = useState({ username: '', email: '', password: '', role: 'user' });
+:root {
+  --spotify-green: #1DB954;
+  --spotify-green-hover: #1ed760;
+  --pulse-violet: #8b5cf6;
+  --pulse-violet-glow: rgba(139, 92, 246, 0.4);
+  --text-base: #ffffff;
+  --text-muted: #a7a7a7;
+  --glass-bg: rgba(18, 18, 18, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
 
-    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+}
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const endpoint = isLogin ? '/auth/login' : '/auth/register';
-            const response = await api.post(endpoint, isLogin ? { email: formData.email, password: formData.password } : formData);
-            setUser(response.data.user);
-        } catch (error) {
-            alert(error.response?.data?.message || "Auth failed");
-        }
-    };
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-base);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  
+  /* The Main Cinematic Background */
+  background: url('https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
+  background-size: cover;
+}
 
-    return (
-        <div style={{ display: 'flex', height: '100vh', width: '100vw', background: '#000' }}>
-            {/* Left Side Visual */}
-            <div style={{ 
-                flex: 1.2, background: 'url("https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop") center/cover',
-                position: 'relative', display: 'flex', alignItems: 'flex-end', padding: '80px'
-            }}>
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.3), #000)' }}></div>
-                <div style={{ position: 'relative', zIndex: 2 }}>
-                    <h1 style={{ fontSize: '84px', fontWeight: '900', color: '#ffffff', margin: 0 }}>PULSE</h1>
-                    <p style={{ fontSize: '24px', color: '#a78bfa', fontWeight: '700' }}>Experience music like never before.</p>
-                </div>
-            </div>
+/* Custom Scrollbar for Dashboard Area */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
 
-            {/* Right Side Form */}
-            <div style={{ flex: '0 0 450px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a0a', padding: '40px' }}>
-                <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <h2 style={{ fontSize: '32px', color: '#fff' }}>{isLogin ? 'Log In' : 'Create Account'}</h2>
-                    {!isLogin && (
-                        <>
-                            <input name="username" type="text" placeholder="Username" onChange={handleChange} className="auth-input" required />
-                            <select name="role" onChange={handleChange} className="auth-input" style={{background: '#121212'}}>
-                                <option value="user">Listener</option>
-                                <option value="artist">Artist</option>
-                            </select>
-                        </>
-                    )}
-                    <input name="email" type="email" placeholder="Email address" onChange={handleChange} className="auth-input" required />
-                    <input name="password" type="password" placeholder="Password" onChange={handleChange} className="auth-input" required />
-                    <button type="submit" className="btn" style={{ background: '#1DB954', marginTop: '10px' }}>{isLogin ? 'LOG IN' : 'SIGN UP'}</button>
-                    <p style={{ textAlign: 'center', marginTop: '20px', color: '#1DB954', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setIsLogin(!isLogin)}>
-                        {isLogin ? "New here? Sign up" : "Have an account? Log in"}
-                    </p>
-                </form>
-            </div>
-        </div>
-    );
+/* --- Core Layout --- */
+.app-container { 
+  display: flex; 
+  flex-direction: column; 
+  height: 100vh; 
+  width: 100vw;
+}
+
+.main-wrapper { 
+  display: flex; 
+  flex: 1; 
+  overflow: hidden; 
+  padding: 8px; 
+  gap: 8px; 
+}
+
+/* --- Glassmorphism Panels --- */
+.sidebar-panel, .dashboard-area, .top-bar, .player-bar, .form-box {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+}
+
+.sidebar { 
+  width: 300px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+}
+
+.sidebar-panel { 
+  border-radius: 12px; 
+  padding: 24px; 
+}
+
+.dashboard-area { 
+  flex: 1; 
+  border-radius: 12px; 
+  overflow-y: auto; 
+  position: relative; 
+}
+
+.top-bar { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 16px 32px; 
+  position: sticky; 
+  top: 0; 
+  z-index: 100; 
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.content-padding { 
+  padding: 32px; 
+}
+
+.player-bar { 
+  height: 90px; 
+  padding: 0 24px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  margin: 0 8px 8px 8px;
+  border-radius: 12px;
+}
+
+/* --- Navigation --- */
+.nav-item { 
+  display: flex; 
+  align-items: center; 
+  gap: 16px; 
+  color: var(--text-muted); 
+  font-weight: 700; 
+  font-size: 15px; 
+  padding: 10px 0;
+  cursor: pointer; 
+  transition: all 0.2s ease; 
+}
+
+.nav-item:hover, .nav-item.active { 
+  color: var(--text-base); 
+}
+
+.nav-icon { 
+  font-size: 24px; 
+}
+
+.section-title { 
+  font-size: 24px; 
+  font-weight: 800; 
+  margin-bottom: 24px; 
+  letter-spacing: -0.5px; 
+}
+
+/* --- Dashing Action Buttons --- */
+.btn { 
+  background-color: var(--spotify-green) !important; 
+  color: #ffffff !important; 
+  border: none; 
+  padding: 14px 32px; 
+  border-radius: 50px; 
+  font-size: 14px; 
+  font-weight: 800; 
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer; 
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 20px rgba(29, 185, 84, 0.2);
+}
+
+.btn:hover { 
+  background-color: var(--spotify-green-hover) !important; 
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 15px 25px rgba(29, 185, 84, 0.3);
+}
+
+.btn-small { 
+  padding: 8px 20px; 
+  font-size: 12px; 
+}
+
+.btn-outline { 
+  background: transparent !important; 
+  color: var(--text-base) !important; 
+  border: 1px solid rgba(255,255,255,0.2) !important; 
+  box-shadow: none;
+}
+
+.btn-outline:hover {
+  border-color: var(--text-base) !important;
+  background: rgba(255,255,255,0.05) !important;
+}
+
+/* --- Song Cards --- */
+.song-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+  gap: 24px; 
+}
+
+.song-card {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.song-card:hover { 
+  background: rgba(255, 255, 255, 0.08); 
+  transform: translateY(-8px);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.song-card h3 { 
+  font-size: 16px; 
+  font-weight: 700; 
+  margin-bottom: 4px; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
+
+.song-card p { 
+  font-size: 14px; 
+  color: var(--text-muted); 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
+
+/* --- Auth Inputs --- */
+.form-box input, .form-box select {
+  width: 100%;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background-color: rgba(0,0,0,0.4);
+  color: var(--text-base);
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.form-box input:focus {
+  border-color: var(--spotify-green);
+  background-color: rgba(0,0,0,0.6);
+}
+
+/* --- Range Sliders --- */
+input[type="range"] { 
+  -webkit-appearance: none; 
+  height: 4px; 
+  background: rgba(255,255,255,0.1); 
+  border-radius: 2px; 
+  cursor: pointer; 
+}
+
+input[type="range"]::-webkit-slider-thumb { 
+  -webkit-appearance: none; 
+  width: 12px; 
+  height: 12px; 
+  background: #fff; 
+  border-radius: 50%; 
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* =========================================================
+   MOBILE RESPONSIVE VIEW (PORTRAIT & LANDSCAPE)
+   ========================================================= */
+@media (max-width: 768px) {
+  body { overflow-y: auto !important; height: auto; }
+  .app-container { height: auto; display: block; }
+  .main-wrapper { flex-direction: column; padding: 0; padding-bottom: 180px; }
+  .mobile-hide { display: none !important; }
+
+  .sidebar {
+    position: fixed;
+    bottom: 90px;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    z-index: 1000;
+    flex-direction: row;
+  }
+
+  .sidebar-panel:nth-child(1) {
+    flex-direction: row !important;
+    justify-content: space-around;
+    width: 100%;
+    padding: 0;
+    border-radius: 0;
+    background: rgba(10, 10, 10, 0.95) !important;
+  }
+
+  .sidebar-panel:nth-child(n+2) { display: none !important; }
+
+  .brand-logo { display: none !important; }
+  
+  .nav-item {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 10px;
+  }
+
+  .song-grid { grid-template-columns: repeat(2, 1fr) !important; padding: 16px; }
+
+  .player-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    background: #000 !important;
+  }
 }
