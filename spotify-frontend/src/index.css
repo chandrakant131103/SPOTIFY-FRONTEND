@@ -34,45 +34,58 @@ body {
 .sidebar-panel { border-radius: 12px; padding: 24px; }
 .dashboard-area { flex: 1; border-radius: 12px; overflow-y: auto; }
 .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; position: sticky; top: 0; z-index: 100; }
-.content-padding { padding: 32px; }
-
-/* Buttons & Inputs */
-.btn { background: var(--pulse-primary); color: #fff; border: none; padding: 12px 24px; border-radius: 50px; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4); }
-.auth-input { width: 100%; padding: 16px; border-radius: 8px; border: 1px solid #333; background: rgba(0,0,0,0.8); color: #fff; margin-bottom: 15px; }
 
 /* Navigation */
 .nav-item { display: flex; align-items: center; gap: 16px; color: var(--text-muted); font-weight: 700; cursor: pointer; padding: 10px 0; }
 .nav-item.active { color: #fff; }
 .nav-icon { font-size: 24px; }
 
+/* Buttons & Inputs */
+.btn { background: var(--pulse-primary); color: #fff; border: none; padding: 12px 24px; border-radius: 50px; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; width: 100%; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4); }
+.auth-input { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #333; background: rgba(0,0,0,0.8); color: #fff; margin-bottom: 12px; font-family: inherit; outline: none; }
+.auth-input:focus { border-color: var(--pulse-primary); }
+
 /* =========================================================
-   MOBILE RESPONSIVE OVERRIDES
+   MOBILE VIEW (Auth Focus & App Layout)
    ========================================================= */
 @media (max-width: 768px) {
-  body { overflow: auto; } /* Allow scrolling for auth if needed */
-  
+  /* 1. AUTH PAGE FIX: Force the form to the center */
+  .auth-container {
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 20px !important;
+    overflow: hidden !important;
+  }
+
+  /* Hide the large desktop text (Join Pulse) on mobile to move form up */
+  .auth-container > div:first-child:not(.form-box) {
+    display: none !important;
+  }
+
+  /* Make the Login/Signup box full width and centered */
+  .form-box, 
+  div[style*="width: 450px"], 
+  div[style*="maxWidth: 450px"] {
+    width: 100% !important;
+    max-width: 380px !important;
+    padding: 28px !important;
+    margin: 0 auto !important;
+    border-radius: 20px !important;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6) !important;
+  }
+
+  /* 2. DASHBOARD LAYOUT */
   .main-wrapper { flex-direction: column; padding: 0; gap: 0; }
-  
-  /* Auth Page Fix: Ensures the login container is readable */
-  .auth-container { 
-    padding: 20px !important; 
-    justify-content: center !important; 
-    align-items: center !important; 
-  }
-  
-  /* Target the login box specifically */
-  div[style*="width: 450px"], .form-box {
-    width: 95% !important;
-    max-width: 100% !important;
-    padding: 24px !important;
-    margin: auto;
-  }
-
   .dashboard-area { border-radius: 0; padding-bottom: 160px; }
-  .top-bar { padding: 12px; flex-direction: column; gap: 12px; height: auto; position: relative; }
+  
+  /* Top bar adjustments */
+  .top-bar { padding: 12px; border-bottom: 1px solid var(--glass-border); }
 
-  /* Bottom Navigation Fix */
+  /* 3. BOTTOM NAVIGATION (App Style) */
   .sidebar {
     position: fixed;
     bottom: 0; left: 0; width: 100%; height: 70px;
@@ -89,24 +102,24 @@ body {
     width: 100%; padding: 0 !important; border: none; background: transparent !important;
   }
 
-  /* Hide logo and extra panels on mobile */
-  .brand-logo, .sidebar-panel:nth-child(n+2) { display: none !important; }
+  /* Hide redundant elements */
+  .brand-logo, .sidebar-panel:nth-child(n+2), .mobile-hide { display: none !important; }
   
   .nav-item { flex-direction: column; font-size: 10px; gap: 4px; padding: 5px; flex: 1; }
   .nav-icon { font-size: 20px; }
 
-  /* Player Bar sitting above the Nav */
+  /* 4. PLAYER BAR (Floats above Nav) */
   .player-bar {
     position: fixed;
     bottom: 70px; left: 0; width: 100%; height: 80px;
     margin: 0; border-radius: 0;
     background: rgba(10,10,10,0.95) !important;
     padding: 0 16px;
+    border-top: 1px solid rgba(255,255,255,0.05);
   }
-
   .player-center { flex: 1; }
   .player-right, .player-seek { display: none !important; }
 
-  /* Grid Fix */
+  /* 5. GRID SYSTEM */
   .song-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; }
 }
