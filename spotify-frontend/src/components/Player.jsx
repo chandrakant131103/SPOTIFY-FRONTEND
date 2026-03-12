@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+// 🔥 Import createPortal to "teleport" the HD screen out of the bottom bar
+import { createPortal } from 'react-dom'; 
 import { FiVolume2, FiVolumeX, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { FaPlayCircle, FaPauseCircle, FaStepBackward, FaStepForward } from "react-icons/fa";
 
@@ -9,7 +11,7 @@ export default function Player({ currentSong }) {
     const [duration, setDuration] = useState(0);
     const [volume, setVolume] = useState(1);
     
-    // 🔥 New State: Controls whether the player is a bottom bar or full-screen
+    // State to track if the HD screen is open
     const [isExpanded, setIsExpanded] = useState(false);
     
     useEffect(() => {
@@ -19,8 +21,7 @@ export default function Player({ currentSong }) {
         }
     }, [currentSong]);
 
-    const togglePlayPause = (e) => {
-        e.stopPropagation(); // Prevents the click from triggering the expand toggle
+    const togglePlayPause = () => {
         if (!audioRef.current) return;
         if (isPlaying) audioRef.current.pause();
         else audioRef.current.play();
@@ -31,14 +32,12 @@ export default function Player({ currentSong }) {
     const handleLoadedMetadata = () => setDuration(audioRef.current.duration);
     
     const handleSeek = (e) => {
-        e.stopPropagation();
         const time = Number(e.target.value);
         audioRef.current.currentTime = time;
         setCurrentTime(time);
     };
 
     const handleVolume = (e) => {
-        e.stopPropagation();
         const vol = Number(e.target.value);
         audioRef.current.volume = vol;
         setVolume(vol);
@@ -57,110 +56,94 @@ export default function Player({ currentSong }) {
         </div>
     );
 
-    // 🔥 HD IMAGE TRICK: Fetching 1080x1080 resolution for the big screen!
+    // 🔥 HD IMAGE TRICK
     const hdCover = currentSong.coverUrl || `https://picsum.photos/seed/${currentSong._id}/1080/1080`;
-    // We still keep a smaller 400x400 for the bottom bar so it loads instantly
     const smallCover = currentSong.coverUrl || `https://picsum.photos/seed/${currentSong._id}/400/400`;
 
-    // ==========================================
-    // VIEW 1: THE FULL-SCREEN "NOW PLAYING" VIEW
-    // ==========================================
-    if (isExpanded) {
-        return (
-            <div style={{
-                position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-                background: 'linear-gradient(to bottom, #1e1e1e, #000000)',
-                zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center',
-                padding: '40px 20px', overflowY: 'auto'
-            }}>
-                {/* Top Bar with Minimize Button */}
-                <div style={{ width: '100%', maxWidth: '600px', display: 'flex', justifyContent: 'flex-start', marginBottom: '20px' }}>
-                    <FiChevronDown size={36} color="#ffffff" style={{ cursor: 'pointer' }} onClick={() => setIsExpanded(false)} className="hover:scale-105" />
-                </div>
-
-                {/* Massive HD Album Art */}
-                <img 
-                    src={hdCover} 
-                    alt="Cover" 
-                    style={{ width: '100%', maxWidth: '400px', aspectRatio: '1/1', borderRadius: '12px', boxShadow: '0 20px 50px rgba(0,0,0,0.8)', objectFit: 'cover' }} 
-                />
-
-                {/* Song Info */}
-                <div style={{ width: '100%', maxWidth: '400px', marginTop: '40px', textAlign: 'left' }}>
-                    <h2 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '8px', color: '#ffffff' }}>{currentSong.title}</h2>
-                    <p style={{ fontSize: '18px', color: '#a7a7a7' }}>{currentSong.artist?.username || 'Unknown Artist'}</p>
-                </div>
-
-                {/* Big Seek Bar */}
-                <div style={{ width: '100%', maxWidth: '400px', marginTop: '30px', display: 'flex', alignItems: 'center', gap: '15px', color: '#a7a7a7', fontSize: '14px' }}>
-                    <span>{formatTime(currentTime)}</span>
-                    <input type="range" min="0" max={duration || 100} value={currentTime} onChange={handleSeek} style={{ flex: 1, height: '6px' }} />
-                    <span>{formatTime(duration)}</span>
-                </div>
-
-                {/* Big Controls */}
-                <div style={{ width: '100%', maxWidth: '400px', marginTop: '30px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px' }}>
-                    <FaStepBackward size={28} color="#b3b3b3" style={{ cursor: 'pointer' }} className="hover:text-white" />
-                    <div onClick={togglePlayPause} style={{ cursor: 'pointer', color: 'white' }}>
-                        {isPlaying ? <FaPauseCircle size={72} className="hover:scale-105" /> : <FaPlayCircle size={72} className="hover:scale-105" />}
-                    </div>
-                    <FaStepForward size={28} color="#b3b3b3" style={{ cursor: 'pointer' }} className="hover:text-white" />
-                </div>
-
-                {/* Hidden Audio Element */}
-                <audio ref={audioRef} src={currentSong.uri} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setIsPlaying(false)} />
-            </div>
-        );
-    }
-
-    // ==========================================
-    // VIEW 2: THE STANDARD BOTTOM BAR VIEW
-    // ==========================================
     return (
-        <div 
-            onClick={() => setIsExpanded(true)} /* 🔥 Clicking the bar expands it! */
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
-        >
+        <>
+            {/* 1. AUDIO KEEPS PLAYING (Never unmounts, meaning no music interruptions!) */}
             <audio ref={audioRef} src={currentSong.uri} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setIsPlaying(false)} />
 
-            {/* Left: Now Playing Info */}
-            <div className="player-left" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <img src={smallCover} alt="Cover" style={{ width: '56px', height: '56px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} />
-                
-                <div style={{ overflow: 'hidden' }}>
-                    <h4 style={{ fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.title}</h4>
-                    <p style={{ fontSize: '12px', color: '#a7a7a7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.artist?.username || 'Unknown Artist'}</p>
+            {/* 2. BOTTOM BAR (Click to expand) */}
+            <div 
+                onClick={() => setIsExpanded(true)}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+            >
+                <div className="player-left" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <img src={smallCover} alt="Cover" style={{ width: '56px', height: '56px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} />
+                    <div style={{ overflow: 'hidden' }}>
+                        <h4 style={{ fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.title}</h4>
+                        <p style={{ fontSize: '12px', color: '#a7a7a7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.artist?.username || 'Unknown Artist'}</p>
+                    </div>
                 </div>
-            </div>
-            
-            {/* Center: Controls */}
-            <div className="player-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                <div className="player-controls" style={{ display: 'flex', alignItems: 'center', gap: '20px', color: '#b3b3b3' }}>
-                    <FaStepBackward size={16} style={{ cursor: 'pointer' }} onClick={(e) => e.stopPropagation()} className="hover:text-white" />
-                    
-                    {/* Stop Propagation prevents the click from expanding the player when you just want to pause */}
-                    <div onClick={togglePlayPause} style={{ cursor: 'pointer', color: 'white' }}>
-                        {isPlaying ? <FaPauseCircle size={36} className="hover:scale-105" /> : <FaPlayCircle size={36} className="hover:scale-105" />}
+                
+                <div className="player-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                    <div className="player-controls" style={{ display: 'flex', alignItems: 'center', gap: '20px', color: '#b3b3b3' }}>
+                        <FaStepBackward size={16} onClick={(e) => e.stopPropagation()} style={{ cursor: 'pointer' }} className="hover:text-white" />
+                        
+                        {/* Stop Propagation prevents the click from expanding the player when you just want to pause */}
+                        <div onClick={(e) => { e.stopPropagation(); togglePlayPause(); }} style={{ cursor: 'pointer', color: 'white' }}>
+                            {isPlaying ? <FaPauseCircle size={36} className="hover:scale-105" /> : <FaPlayCircle size={36} className="hover:scale-105" />}
+                        </div>
+                        
+                        <FaStepForward size={16} onClick={(e) => e.stopPropagation()} style={{ cursor: 'pointer' }} className="hover:text-white" />
                     </div>
                     
-                    <FaStepForward size={16} style={{ cursor: 'pointer' }} onClick={(e) => e.stopPropagation()} className="hover:text-white" />
+                    <div className="player-seek" onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', fontSize: '12px', color: '#a7a7a7' }}>
+                        <span>{formatTime(currentTime)}</span>
+                        <input type="range" min="0" max={duration || 100} value={currentTime} onChange={(e) => { e.stopPropagation(); handleSeek(e); }} style={{ flex: 1 }} />
+                        <span>{formatTime(duration)}</span>
+                    </div>
                 </div>
-                
-                <div className="player-seek" onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', fontSize: '12px', color: '#a7a7a7' }}>
-                    <span>{formatTime(currentTime)}</span>
-                    <input type="range" min="0" max={duration || 100} value={currentTime} onChange={handleSeek} style={{ flex: 1 }} />
-                    <span>{formatTime(duration)}</span>
+
+                <div className="player-right" onClick={(e) => e.stopPropagation()} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px', color: '#a7a7a7' }}>
+                    {volume === 0 ? <FiVolumeX size={20} /> : <FiVolume2 size={20} />}
+                    <input type="range" min="0" max="1" step="0.01" value={volume} onChange={(e) => { e.stopPropagation(); handleVolume(e); }} className="volume-slider" style={{ width: '80px' }} />
+                    <FiChevronUp size={24} style={{ cursor: 'pointer', marginLeft: '10px' }} onClick={() => setIsExpanded(true)} className="hover:text-white" />
                 </div>
             </div>
 
-            {/* Right: Volume & Expand Icon */}
-            <div className="player-right" onClick={(e) => e.stopPropagation()} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px', color: '#a7a7a7' }}>
-                {volume === 0 ? <FiVolumeX size={20} /> : <FiVolume2 size={20} />}
-                <input type="range" min="0" max="1" step="0.01" value={volume} onChange={handleVolume} className="volume-slider" style={{ width: '80px' }} />
-                
-                {/* Visual cue to show it can be expanded */}
-                <FiChevronUp size={24} style={{ cursor: 'pointer', marginLeft: '10px' }} onClick={() => setIsExpanded(true)} className="hover:text-white" />
-            </div>
-        </div>
+            {/* 3. HD FULL SCREEN POP-UP (Teleported out of the bottom bar) */}
+            {isExpanded && createPortal(
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+                    background: 'linear-gradient(to bottom, #121212, #000000)', /* Clean Dark Theme */
+                    zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    padding: '40px 20px', overflowY: 'auto'
+                }}>
+                    {/* Minimize Button */}
+                    <div style={{ width: '100%', maxWidth: '600px', display: 'flex', justifyContent: 'flex-start', marginBottom: '20px' }}>
+                        <FiChevronDown size={36} color="#ffffff" style={{ cursor: 'pointer' }} onClick={() => setIsExpanded(false)} className="hover:scale-105" />
+                    </div>
+
+                    {/* Massive HD Album Art */}
+                    <img src={hdCover} alt="HD Cover" style={{ width: '100%', maxWidth: '400px', aspectRatio: '1/1', borderRadius: '12px', boxShadow: '0 20px 50px rgba(0,0,0,0.8)', objectFit: 'cover' }} />
+
+                    {/* Big Song Info */}
+                    <div style={{ width: '100%', maxWidth: '400px', marginTop: '40px', textAlign: 'left' }}>
+                        <h2 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '8px', color: '#ffffff' }}>{currentSong.title}</h2>
+                        <p style={{ fontSize: '18px', color: '#a7a7a7' }}>{currentSong.artist?.username || 'Unknown Artist'}</p>
+                    </div>
+
+                    {/* Big Seek Bar */}
+                    <div style={{ width: '100%', maxWidth: '400px', marginTop: '30px', display: 'flex', alignItems: 'center', gap: '15px', color: '#a7a7a7', fontSize: '14px' }}>
+                        <span>{formatTime(currentTime)}</span>
+                        <input type="range" min="0" max={duration || 100} value={currentTime} onChange={handleSeek} style={{ flex: 1, height: '6px' }} />
+                        <span>{formatTime(duration)}</span>
+                    </div>
+
+                    {/* Big Controls */}
+                    <div style={{ width: '100%', maxWidth: '400px', marginTop: '30px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px' }}>
+                        <FaStepBackward size={28} color="#b3b3b3" style={{ cursor: 'pointer' }} className="hover:text-white" />
+                        <div onClick={togglePlayPause} style={{ cursor: 'pointer', color: 'white' }}>
+                            {isPlaying ? <FaPauseCircle size={72} className="hover:scale-105" /> : <FaPlayCircle size={72} className="hover:scale-105" />}
+                        </div>
+                        <FaStepForward size={28} color="#b3b3b3" style={{ cursor: 'pointer' }} className="hover:text-white" />
+                    </div>
+                </div>,
+                document.body // This is the magic that tells it to render over the entire webpage!
+            )}
+        </>
     );
 }
