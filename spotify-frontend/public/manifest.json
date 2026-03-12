@@ -1,22 +1,22 @@
 {
   "short_name": "Pulse",
   "name": "Pulse | Experience Music",
-  "description": "The heartbeat of modern music. Stream, upload, and discover new tracks.",
+  "description": "The heartbeat of modern music.",
   "icons": [
     {
-      "src": "https://api.dicebear.com/7.x/initials/png?seed=Pulse&backgroundColor=8b5cf6&fontSize=40",
+      "src": "/logo192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any"
     },
     {
-      "src": "https://api.dicebear.com/7.x/initials/png?seed=Pulse&backgroundColor=8b5cf6&fontSize=40",
+      "src": "/logo512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#000000",
