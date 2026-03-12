@@ -4,16 +4,16 @@
   "description": "The heartbeat of modern music. Stream, upload, and discover new tracks.",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "https://api.dicebear.com/7.x/initials/png?seed=Pulse&backgroundColor=8b5cf6&fontSize=40",
       "type": "image/png",
       "sizes": "192x192",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "https://api.dicebear.com/7.x/initials/png?seed=Pulse&backgroundColor=8b5cf6&fontSize=40",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "start_url": ".",
