@@ -180,9 +180,4 @@ body {
 }
 
 
-@media (max-width: 768px) {
-  /* Hide the hero section by default to prevent "flicker" */
-  .auth-hero-section, .auth-left-panel {
-    display: none !important;
-  }
-}
+
