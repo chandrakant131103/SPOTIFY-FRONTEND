@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import api from '../api/axiosConfig';
 import { FiHeart } from "react-icons/fi";
 import { FaHeart } from "react-icons/fa";
-import toast from 'react-hot-toast'; // ⚡ Using our new toast notifications
 
 export default function Dashboard({ setCurrentSong }) {
     const [songs, setSongs] = useState([]);
@@ -29,16 +28,8 @@ export default function Dashboard({ setCurrentSong }) {
         try {
             const response = await api.post(`/music/like/${songId}`);
             setLikedIds(response.data.likedSongs);
-            
-            // Trigger the slick notification!
-            if (response.data.likedSongs.includes(songId)) {
-                toast.success('Added to Liked Songs', { icon: '💙' }); // Blue heart emoji!
-            } else {
-                toast('Removed from Liked Songs', { icon: '💔' });
-            }
         } catch (error) {
             console.error("Failed to toggle like", error);
-            toast.error("Failed to update liked songs");
         }
     };
 
@@ -47,12 +38,14 @@ export default function Dashboard({ setCurrentSong }) {
             <h2 className="section-title">Made for You</h2>
             <div className="song-grid">
                 {songs.map(song => {
+                    // 🔥 THE TRICK: Generate a unique image based on the song's ID!
                     const uniqueCover = `https://picsum.photos/seed/${song._id}/400/400`;
 
                     return (
                         <div key={song._id} className="song-card" onClick={() => setCurrentSong(song)}>
                             <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '6px', overflow: 'hidden', position: 'relative', marginBottom: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
                                 
+                                {/* 1. Use the song's actual coverUrl, OR fallback to the unique generated image */}
                                 <img 
                                     src={song.coverUrl || uniqueCover} 
                                     alt="Cover" 
@@ -66,7 +59,7 @@ export default function Dashboard({ setCurrentSong }) {
                                     className="hover:scale-110"
                                 >
                                     {likedIds.includes(song._id) ? (
-                                        <FaHeart size={18} color="#3b82f6" /> /* ⚡ Updated to Electric Blue */
+                                        <FaHeart size={18} color="#1DB954" />
                                     ) : (
                                         <FiHeart size={18} color="#ffffff" />
                                     )}
