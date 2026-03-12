@@ -4,7 +4,7 @@ import api from './api/axiosConfig';
 import { GoHomeFill, GoSearch } from "react-icons/go";
 import { VscLibrary } from "react-icons/vsc";
 import { FiHeart, FiTrendingUp, FiPlusSquare, FiExternalLink } from "react-icons/fi";
-import { BsSoundwave, BsUpload } from "react-icons/bs"; // Added Upload Icon
+import { BsSoundwave, BsUpload } from "react-icons/bs";
 
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
@@ -23,16 +23,43 @@ function App() {
     
     const [currentSong, setCurrentSong] = useState(null);
     const [activeTab, setActiveTab] = useState('home');
+    
+    // ⚡ ADDED: PWA Install Prompt State
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+    // ⚡ ADDED: Listen for the browser's install prompt
+    useEffect(() => {
+        const handleBeforeInstallPrompt = (e) => {
+            e.preventDefault();
+            setDeferredPrompt(e); // Store the event so we can trigger it later
+        };
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        
+        return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    }, []);
 
     useEffect(() => {
         if (user) localStorage.setItem('pulse_session', JSON.stringify(user));
         else localStorage.removeItem('pulse_session');
     }, [user]);
 
+    // ⚡ ADDED: Function to trigger the install prompt when button is clicked
+    const handleInstallApp = async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                setDeferredPrompt(null); // Hide the button after successful install
+            }
+        }
+    };
+
     const handleLogout = async () => {
         try {
             await api.post('/auth/logout'); 
-        } catch (err) {} 
+        } catch (err) {
+            console.error("Logout failed", err); // Fixed empty block for Vercel
+        } 
         finally {
             setUser(null);
             setCurrentSong(null);
@@ -66,7 +93,7 @@ function App() {
                             )}
                         </div>
                         
-                        {/* ⚡ ONLY Listeners can see the Search/Discover Tab */}
+                        {/* ONLY Listeners can see the Search/Discover Tab */}
                         {user.role === 'user' && (
                             <div className={`nav-item ${activeTab === 'search' ? 'active' : ''}`} onClick={() => setActiveTab('search')}>
                                 <GoSearch className="nav-icon"/> Discover
@@ -110,6 +137,18 @@ function App() {
                         <div style={{ color: '#8b5cf6', fontWeight: '900', letterSpacing: '2px', fontSize: '11px' }}>PULSE PREMIUM</div>
                         
                         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                            
+                            {/* ⚡ THE NEW INSTALL BUTTON (Only shows if browser allows it and app is not installed) */}
+                            {deferredPrompt && (
+                                <button 
+                                    onClick={handleInstallApp} 
+                                    className="btn btn-small" 
+                                    style={{ background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)', boxShadow: '0 0 15px rgba(236, 72, 153, 0.4)' }}
+                                >
+                                    Install App
+                                </button>
+                            )}
+
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.03)', padding: '6px 16px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.05)' }}>
                                 <span style={{ fontWeight: '700', fontSize: '14px' }}>{user.username}</span>
                                 <span style={{
@@ -126,7 +165,7 @@ function App() {
                     </div>
 
                     <div className="content-padding">
-                        {/* ⚡ Completely Removed Search from Artist Routing */}
+                        {/* Completely Removed Search from Artist Routing */}
                         {user.role === 'artist' ? (
                             <>
                                 {activeTab === 'home' && <UploadMusic />}
