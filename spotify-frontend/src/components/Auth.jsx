@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import api from '../api/axiosConfig';
 
 export default function Auth({ setUser }) {
-    // Default to Sign Up screen
     const [isLogin, setIsLogin] = useState(false); 
     const [formData, setFormData] = useState({ username: '', email: '', password: '', role: 'user' });
 
@@ -12,10 +11,7 @@ export default function Auth({ setUser }) {
         e.preventDefault();
         try {
             const endpoint = isLogin ? '/auth/login' : '/auth/register';
-            const payload = isLogin 
-                ? { email: formData.email, password: formData.password } 
-                : formData;
-            
+            const payload = isLogin ? { email: formData.email, password: formData.password } : formData;
             const response = await api.post(endpoint, payload);
             setUser(response.data.user);
         } catch (error) {
@@ -24,87 +20,103 @@ export default function Auth({ setUser }) {
     };
 
     return (
-        <div className="auth-container" style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            height: '100vh', 
-            width: '100vw', 
-            background: 'transparent' 
-        }}>
-            <form className="form-box" onSubmit={handleSubmit} style={{ 
-                width: '100%', 
-                maxWidth: '420px', 
-                padding: '40px', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                gap: '16px',
+        <div style={{ display: 'flex', height: '100vh', width: '100vw', background: '#000', overflow: 'hidden' }}>
+            
+            {/* Left Side: Cinematic Visual (The part you liked!) */}
+            <div style={{ 
+                flex: 1.2, /* Takes more space for the impact */
+                background: 'url("https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop") center/cover',
                 position: 'relative',
-                zIndex: 100 /* Ensures form stays on top of any background images */
-            }}>
-                <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-                    <h1 style={{ fontSize: '32px', fontWeight: '900', letterSpacing: '-1.5px', color: '#fff' }}>PULSE</h1>
-                    <h2 style={{ fontSize: '24px', fontWeight: '700', marginTop: '8px' }}>
-                        {isLogin ? 'Log In to Listen' : 'Create Account'}
-                    </h2>
+                display: 'flex',
+                alignItems: 'flex-end',
+                padding: '80px'
+            }} className="mobile-hide">
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.3), #000)' }}></div>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                    <h1 style={{ fontSize: '84px', fontWeight: '900', color: '#ffffff', letterSpacing: '-4px', margin: 0, lineHeight: 0.9 }}>PULSE</h1>
+                    <p style={{ fontSize: '24px', color: '#a78bfa', fontWeight: '700', marginTop: '15px', textShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                        Experience music like never before.
+                    </p>
                 </div>
-                
-                {!isLogin && (
-                    <>
-                        <input name="username" type="text" placeholder="Username" onChange={handleChange} required />
-                        <select 
-                            name="role" 
-                            onChange={handleChange} 
+            </div>
+
+            {/* Right Side: Solid Form Container (Fixed Width to prevent collapse) */}
+            <div style={{ 
+                flex: '0 0 450px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                padding: '40px', 
+                background: '#0a0a0a',
+                position: 'relative',
+                zIndex: 10 
+            }}>
+                <div style={{ width: '100%' }}>
+                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <div>
+                            <h2 style={{ fontSize: '36px', fontWeight: '800', marginBottom: '8px', color: '#ffffff' }}>
+                                {isLogin ? 'Welcome Back' : 'Create Account'}
+                            </h2>
+                            <p style={{ color: '#a7a7a7', fontSize: '15px' }}>Enter your details to sync with the pulse.</p>
+                        </div>
+                        
+                        {!isLogin && (
+                            <>
+                                <input name="username" type="text" placeholder="Username" onChange={handleChange} required className="auth-input" />
+                                <select 
+                                    name="role" 
+                                    onChange={handleChange} 
+                                    className="auth-input"
+                                    style={{ cursor: 'pointer', background: '#121212' }}
+                                >
+                                    <option value="user">Listener</option>
+                                    <option value="artist">Artist</option>
+                                </select>
+                            </>
+                        )}
+                        
+                        <input name="email" type="email" placeholder="Email address" onChange={handleChange} required className="auth-input" />
+                        <input name="password" type="password" placeholder="Password" onChange={handleChange} required className="auth-input" />
+                        
+                        {/* ⚡ GREEN BUTTONS ARE BACK */}
+                        <button 
+                            type="submit" 
+                            className="btn" 
                             style={{ 
-                                padding: '14px', 
-                                borderRadius: '4px', 
-                                border: '1px solid #727272', 
-                                backgroundColor: 'rgba(0,0,0,0.4)', 
-                                color: 'white', 
-                                fontSize: '16px',
+                                padding: '18px', 
+                                fontSize: '16px', 
+                                marginTop: '10px',
+                                background: '#1DB954',
+                                border: 'none',
+                                color: '#fff',
+                                fontWeight: '900',
+                                borderRadius: '50px',
                                 cursor: 'pointer'
                             }}
                         >
-                            <option value="user" style={{ color: 'black' }}>Listener</option>
-                            <option value="artist" style={{ color: 'black' }}>Artist</option>
-                        </select>
-                    </>
-                )}
-                
-                <input name="email" type="email" placeholder="Email address" onChange={handleChange} required />
-                <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
-                
-                <button 
-                    type="submit" 
-                    className="btn" 
-                    style={{ 
-                        marginTop: '10px', 
-                        background: '#1DB954', /* Green Button */
-                        color: '#fff',
-                        fontWeight: '800'
-                    }}
-                >
-                    {isLogin ? 'LOG IN' : 'SIGN UP'}
-                </button>
-                
-                <div style={{ textAlign: 'center', marginTop: '15px', paddingTop: '20px', borderTop: '1px solid #282828' }}>
-                    <p style={{ fontSize: '14px', color: '#a7a7a7' }}>
-                        {isLogin ? "Don't have an account?" : "Already have an account?"}
-                    </p>
-                    <p 
-                        style={{ 
-                            cursor: 'pointer', 
-                            fontSize: '15px', 
-                            fontWeight: 'bold', 
-                            color: '#1DB954', 
-                            marginTop: '8px' 
-                        }} 
-                        onClick={() => setIsLogin(!isLogin)}
-                    >
-                        {isLogin ? "Sign up for Pulse" : "Log in instead"}
-                    </p>
+                            {isLogin ? 'LOG IN' : 'SIGN UP'}
+                        </button>
+                        
+                        <div style={{ textAlign: 'center', marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #222' }}>
+                            <p style={{ fontSize: '14px', color: '#a7a7a7' }}>
+                                {isLogin ? "Don't have an account?" : "Already have an account?"}
+                            </p>
+                            <p 
+                                style={{ 
+                                    cursor: 'pointer', 
+                                    fontSize: '16px', 
+                                    fontWeight: 'bold', 
+                                    color: '#1DB954', /* Green Toggle Text */
+                                    marginTop: '8px' 
+                                }} 
+                                onClick={() => setIsLogin(!isLogin)}
+                            >
+                                {isLogin ? "Sign up here" : "Log in instead"}
+                            </p>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     );
 }
