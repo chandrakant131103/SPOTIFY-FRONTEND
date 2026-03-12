@@ -1,8 +1,14 @@
+const CACHE_NAME = 'pulse-v1';
+
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
+// This fetch listener is mandatory for the "Install" button to appear
 self.addEventListener('fetch', (event) => {
-  // Desktop Chrome needs this fetch handler to enable the install icon
-  event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+  event.respondWith(
+    fetch(event.request).catch(() => {
+      return caches.match(event.request);
+    })
+  );
 });
