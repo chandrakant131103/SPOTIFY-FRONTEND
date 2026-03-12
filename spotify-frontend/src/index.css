@@ -6,8 +6,8 @@
   --pulse-secondary: #ec4899;
   --text-base: #ffffff;
   --text-muted: #a7a7a7;
-  --glass-bg: rgba(10, 10, 10, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(10, 10, 10, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -16,7 +16,7 @@ body {
   font-family: 'Inter', sans-serif;
   color: var(--text-base);
   overflow: hidden;
-  background: #000 url('https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
+  background: url('https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
   background-size: cover;
 }
 
@@ -34,10 +34,12 @@ body {
 .sidebar-panel { border-radius: 12px; padding: 24px; }
 .dashboard-area { flex: 1; border-radius: 12px; overflow-y: auto; }
 .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; position: sticky; top: 0; z-index: 100; }
+.content-padding { padding: 32px; }
 
 /* Buttons & Inputs */
-.btn { background: var(--pulse-primary) !important; color: #fff !important; border: none; padding: 12px 24px; border-radius: 50px; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; width: 100%; }
-.auth-input { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #333; background: rgba(0,0,0,0.8); color: #fff; margin-bottom: 12px; outline: none; }
+.btn { background: var(--pulse-primary); color: #fff; border: none; padding: 12px 24px; border-radius: 50px; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4); }
+.auth-input { width: 100%; padding: 16px; border-radius: 8px; border: 1px solid #333; background: rgba(0,0,0,0.8); color: #fff; margin-bottom: 15px; }
 
 /* Navigation */
 .nav-item { display: flex; align-items: center; gap: 16px; color: var(--text-muted); font-weight: 700; cursor: pointer; padding: 10px 0; }
@@ -45,39 +47,37 @@ body {
 .nav-icon { font-size: 24px; }
 
 /* =========================================================
-   MOBILE RESPONSIVE
+   MOBILE RESPONSIVE OVERRIDES
    ========================================================= */
 @media (max-width: 768px) {
-  /* 1. AUTH FIX: No scrolling, center form */
-  .auth-container {
-    height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    padding: 15px !important;
-  }
-
-  /* Hide the "Join Pulse" desktop text */
-  .auth-container > div:first-child:not(.form-box) { display: none !important; }
-
-  .form-box, div[style*="width: 450px"] {
-    width: 100% !important;
-    max-width: 380px !important;
-    padding: 24px !important;
-    border-radius: 16px !important;
-  }
-
-  /* 2. DASHBOARD LAYOUT */
+  body { overflow: auto; } /* Allow scrolling for auth if needed */
+  
   .main-wrapper { flex-direction: column; padding: 0; gap: 0; }
-  .dashboard-area { border-radius: 0; padding-bottom: 160px; }
-  .top-bar { padding: 10px 16px; border-bottom: 1px solid var(--glass-border); }
+  
+  /* Auth Page Fix: Ensures the login container is readable */
+  .auth-container { 
+    padding: 20px !important; 
+    justify-content: center !important; 
+    align-items: center !important; 
+  }
+  
+  /* Target the login box specifically */
+  div[style*="width: 450px"], .form-box {
+    width: 95% !important;
+    max-width: 100% !important;
+    padding: 24px !important;
+    margin: auto;
+  }
 
-  /* 3. BOTTOM NAVIGATION */
+  .dashboard-area { border-radius: 0; padding-bottom: 160px; }
+  .top-bar { padding: 12px; flex-direction: column; gap: 12px; height: auto; position: relative; }
+
+  /* Bottom Navigation Fix */
   .sidebar {
     position: fixed;
-    bottom: 0; left: 0; width: 100%; height: 65px;
+    bottom: 0; left: 0; width: 100%; height: 70px;
     flex-direction: row; background: #000 !important;
+    border-top: 1px solid var(--glass-border);
     z-index: 2000;
   }
   
@@ -85,21 +85,28 @@ body {
     display: flex !important;
     flex-direction: row !important;
     justify-content: space-around;
-    width: 100%; padding: 0 !important; border: none !important;
+    align-items: center;
+    width: 100%; padding: 0 !important; border: none; background: transparent !important;
   }
 
-  .brand-logo, .sidebar-panel:nth-child(n+2), .mobile-hide { display: none !important; }
+  /* Hide logo and extra panels on mobile */
+  .brand-logo, .sidebar-panel:nth-child(n+2) { display: none !important; }
+  
   .nav-item { flex-direction: column; font-size: 10px; gap: 4px; padding: 5px; flex: 1; }
   .nav-icon { font-size: 20px; }
 
-  /* 4. PLAYER BAR */
+  /* Player Bar sitting above the Nav */
   .player-bar {
     position: fixed;
-    bottom: 65px; left: 0; width: 100%; height: 75px;
+    bottom: 70px; left: 0; width: 100%; height: 80px;
     margin: 0; border-radius: 0;
-    background: rgba(15,15,15,0.98) !important;
+    background: rgba(10,10,10,0.95) !important;
     padding: 0 16px;
   }
+
   .player-center { flex: 1; }
   .player-right, .player-seek { display: none !important; }
+
+  /* Grid Fix */
+  .song-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; }
 }
