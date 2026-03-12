@@ -316,3 +316,18 @@ input[type="range"]::-webkit-slider-thumb {
   border-color: var(--spotify-green) !important;
   color: #fff;
 }
+
+
+/* Styling for the Contribution textarea */
+textarea.auth-input {
+  font-family: inherit;
+  padding: 20px;
+  line-height: 1.5;
+}
+
+/* Hover effects for sidebar icons */
+.nav-item:hover .nav-icon, 
+.nav-item.active .nav-icon {
+  color: var(--spotify-green);
+  transition: color 0.2s ease;
+}
