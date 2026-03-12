@@ -7,8 +7,6 @@ export default function Search({ setCurrentSong }) {
     const [filteredSongs, setFilteredSongs] = useState([]);
     const [error, setError] = useState('');
 
-    const DEFAULT_COVER = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=400&auto=format&fit=crop";
-
     useEffect(() => {
         const fetchAllMusic = async () => {
             try {
@@ -73,15 +71,20 @@ export default function Search({ setCurrentSong }) {
 
             <div className="song-grid">
                 {filteredSongs.length > 0 ? (
-                    filteredSongs.map(song => (
-                        <div key={song._id} className="song-card" onClick={() => setCurrentSong(song)}>
-                            <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '6px', overflow: 'hidden', marginBottom: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
-                                <img src={DEFAULT_COVER} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    filteredSongs.map(song => {
+                        // Dynamic Image for Search Results
+                        const uniqueCover = `https://picsum.photos/seed/${song._id}/400/400`;
+
+                        return (
+                            <div key={song._id} className="song-card" onClick={() => setCurrentSong(song)}>
+                                <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '6px', overflow: 'hidden', marginBottom: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                                    <img src={song.coverUrl || uniqueCover} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </div>
+                                <h3>{song.title}</h3>
+                                <p>{song.artist?.username || 'Unknown Artist'}</p>
                             </div>
-                            <h3>{song.title}</h3>
-                            <p>{song.artist?.username || 'Unknown Artist'}</p>
-                        </div>
-                    ))
+                        );
+                    })
                 ) : (
                     <p style={{ color: '#a7a7a7', gridColumn: '1 / -1', fontSize: '16px' }}>
                         No results found for "{query}"
