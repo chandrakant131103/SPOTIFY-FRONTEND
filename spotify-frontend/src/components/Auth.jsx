@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import api from '../api/axiosConfig';
 
 export default function Auth({ setUser }) {
+    // Default to Sign Up screen
     const [isLogin, setIsLogin] = useState(false); 
     const [formData, setFormData] = useState({ username: '', email: '', password: '', role: 'user' });
 
@@ -11,7 +12,10 @@ export default function Auth({ setUser }) {
         e.preventDefault();
         try {
             const endpoint = isLogin ? '/auth/login' : '/auth/register';
-            const payload = isLogin ? { email: formData.email, password: formData.password } : formData;
+            const payload = isLogin 
+                ? { email: formData.email, password: formData.password } 
+                : formData;
+            
             const response = await api.post(endpoint, payload);
             setUser(response.data.user);
         } catch (error) {
@@ -20,97 +24,87 @@ export default function Auth({ setUser }) {
     };
 
     return (
-        <div style={{ 
+        <div className="auth-container" style={{ 
             display: 'flex', 
             justifyContent: 'center', 
             alignItems: 'center', 
             height: '100vh', 
             width: '100vw', 
-            background: '#000',
-            backgroundImage: 'radial-gradient(circle at center, #1a1a1a 0%, #000 100%)'
+            background: 'transparent' 
         }}>
-            <div style={{ 
+            <form className="form-box" onSubmit={handleSubmit} style={{ 
                 width: '100%', 
                 maxWidth: '420px', 
                 padding: '40px', 
-                background: 'rgba(18, 18, 18, 0.8)', 
-                borderRadius: '16px', 
-                border: '1px solid rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(20px)',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '16px',
+                position: 'relative',
+                zIndex: 100 /* Ensures form stays on top of any background images */
             }}>
-                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                    <h1 style={{ fontSize: '32px', fontWeight: '900', color: '#fff', letterSpacing: '-1.5px', marginBottom: '8px' }}>
-                        PULSE
-                    </h1>
-                    <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#fff' }}>
-                        {isLogin ? 'Welcome back' : 'Create account'}
+                <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+                    <h1 style={{ fontSize: '32px', fontWeight: '900', letterSpacing: '-1.5px', color: '#fff' }}>PULSE</h1>
+                    <h2 style={{ fontSize: '24px', fontWeight: '700', marginTop: '8px' }}>
+                        {isLogin ? 'Log In to Listen' : 'Create Account'}
                     </h2>
                 </div>
-
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {!isLogin && (
-                        <>
-                            <input 
-                                name="username" 
-                                type="text" 
-                                placeholder="Username" 
-                                onChange={handleChange} 
-                                required 
-                                className="auth-input" 
-                            />
-                            <select 
-                                name="role" 
-                                onChange={handleChange} 
-                                className="auth-input"
-                                style={{ cursor: 'pointer' }}
-                            >
-                                <option value="user">Listener</option>
-                                <option value="artist">Artist</option>
-                            </select>
-                        </>
-                    )}
-                    
-                    <input name="email" type="email" placeholder="Email address" onChange={handleChange} required className="auth-input" />
-                    <input name="password" type="password" placeholder="Password" onChange={handleChange} required className="auth-input" />
-                    
-                    <button 
-                        type="submit" 
-                        className="btn" 
-                        style={{ 
-                            padding: '16px', 
-                            fontSize: '16px', 
-                            marginTop: '12px',
-                            background: '#1DB954',
-                            color: '#fff',
-                            borderRadius: '50px',
-                            border: 'none',
-                            fontWeight: '800'
-                        }}
-                    >
-                        {isLogin ? 'LOG IN' : 'SIGN UP'}
-                    </button>
-                </form>
-
-                <div style={{ textAlign: 'center', marginTop: '24px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                    <p style={{ fontSize: '14px', color: '#a7a7a7', marginBottom: '8px' }}>
+                
+                {!isLogin && (
+                    <>
+                        <input name="username" type="text" placeholder="Username" onChange={handleChange} required />
+                        <select 
+                            name="role" 
+                            onChange={handleChange} 
+                            style={{ 
+                                padding: '14px', 
+                                borderRadius: '4px', 
+                                border: '1px solid #727272', 
+                                backgroundColor: 'rgba(0,0,0,0.4)', 
+                                color: 'white', 
+                                fontSize: '16px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <option value="user" style={{ color: 'black' }}>Listener</option>
+                            <option value="artist" style={{ color: 'black' }}>Artist</option>
+                        </select>
+                    </>
+                )}
+                
+                <input name="email" type="email" placeholder="Email address" onChange={handleChange} required />
+                <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
+                
+                <button 
+                    type="submit" 
+                    className="btn" 
+                    style={{ 
+                        marginTop: '10px', 
+                        background: '#1DB954', /* Green Button */
+                        color: '#fff',
+                        fontWeight: '800'
+                    }}
+                >
+                    {isLogin ? 'LOG IN' : 'SIGN UP'}
+                </button>
+                
+                <div style={{ textAlign: 'center', marginTop: '15px', paddingTop: '20px', borderTop: '1px solid #282828' }}>
+                    <p style={{ fontSize: '14px', color: '#a7a7a7' }}>
                         {isLogin ? "Don't have an account?" : "Already have an account?"}
                     </p>
-                    <button 
-                        onClick={() => setIsLogin(!isLogin)}
+                    <p 
                         style={{ 
-                            background: 'none', 
-                            border: 'none', 
-                            color: '#1DB954', 
-                            fontWeight: '700', 
+                            cursor: 'pointer', 
                             fontSize: '15px', 
-                            cursor: 'pointer' 
-                        }}
+                            fontWeight: 'bold', 
+                            color: '#1DB954', 
+                            marginTop: '8px' 
+                        }} 
+                        onClick={() => setIsLogin(!isLogin)}
                     >
                         {isLogin ? "Sign up for Pulse" : "Log in instead"}
-                    </button>
+                    </p>
                 </div>
-            </div>
+            </form>
         </div>
     );
 }
