@@ -68,7 +68,7 @@ export default function Library({ setCurrentSong }) {
                     <h2 className="section-title">Your Albums</h2>
                     <div className="song-grid">
                         {albums.map(album => {
-                            // Dynamic Image for Album Grid
+                            // 🔥 Dynamic Image for Album Grid based on its unique ID
                             const uniqueCover = `https://picsum.photos/seed/${album._id}/400/400`;
                             
                             return (
