@@ -7,8 +7,6 @@ export default function Dashboard({ setCurrentSong }) {
     const [songs, setSongs] = useState([]);
     const [likedIds, setLikedIds] = useState([]);
 
-    const DEFAULT_COVER = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=400&auto=format&fit=crop";
-
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -39,29 +37,43 @@ export default function Dashboard({ setCurrentSong }) {
         <div>
             <h2 className="section-title">Made for You</h2>
             <div className="song-grid">
-                {songs.map(song => (
-                    <div key={song._id} className="song-card" onClick={() => setCurrentSong(song)}>
-                        <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '6px', overflow: 'hidden', position: 'relative', marginBottom: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
-                            
-                            {/* The Default Cover Image */}
-                            <img src={DEFAULT_COVER} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            
-                            {/* The Heart Icon */}
-                            <div 
-                                onClick={(e) => handleLike(e, song._id)}
-                                style={{ position: 'absolute', bottom: '10px', right: '10px', cursor: 'pointer', background: 'rgba(0,0,0,0.4)', padding: '6px', borderRadius: '50%' }}
-                            >
-                                {likedIds.includes(song._id) ? (
-                                    <FaHeart size={20} color="#1DB954" />
-                                ) : (
-                                    <FiHeart size={20} color="#ffffff" className="hover:scale-110" />
-                                )}
+                {songs.map(song => {
+                    // 🔥 THE TRICK: Generate a unique image based on the song's ID!
+                    const uniqueCover = `https://picsum.photos/seed/${song._id}/400/400`;
+
+                    return (
+                        <div key={song._id} className="song-card" onClick={() => setCurrentSong(song)}>
+                            <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '6px', overflow: 'hidden', position: 'relative', marginBottom: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                                
+                                {/* 1. Use the song's actual coverUrl, OR fallback to the unique generated image */}
+                                <img 
+                                    src={song.coverUrl || uniqueCover} 
+                                    alt="Cover" 
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                />
+                                
+                                {/* The Heart Icon */}
+                                <div 
+                                    onClick={(e) => handleLike(e, song._id)}
+                                    style={{ position: 'absolute', bottom: '10px', right: '10px', cursor: 'pointer', background: 'rgba(0,0,0,0.6)', padding: '8px', borderRadius: '50%', transition: 'all 0.2s' }}
+                                    className="hover:scale-110"
+                                >
+                                    {likedIds.includes(song._id) ? (
+                                        <FaHeart size={18} color="#1DB954" />
+                                    ) : (
+                                        <FiHeart size={18} color="#ffffff" />
+                                    )}
+                                </div>
                             </div>
+                            <h3 style={{ fontSize: '15px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {song.title}
+                            </h3>
+                            <p style={{ fontSize: '13px', color: '#a7a7a7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {song.artist?.username || 'Unknown Artist'}
+                            </p>
                         </div>
-                        <h3>{song.title}</h3>
-                        <p>{song.artist?.username || 'Unknown Artist'}</p>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );
