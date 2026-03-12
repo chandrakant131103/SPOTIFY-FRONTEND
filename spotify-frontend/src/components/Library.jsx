@@ -5,8 +5,6 @@ export default function Library({ setCurrentSong }) {
     const [albums, setAlbums] = useState([]);
     const [selectedAlbum, setSelectedAlbum] = useState(null);
 
-    const DEFAULT_COVER = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=400&auto=format&fit=crop";
-
     // 1. Fetch all albums on load
     useEffect(() => {
         const fetchAlbums = async () => {
@@ -38,10 +36,10 @@ export default function Library({ setCurrentSong }) {
                         ← Back to Albums
                     </button>
                     
-                    {/* Album Header */}
+                    {/* Album Header with Dynamic Image */}
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '24px', marginBottom: '32px' }}>
                         <img 
-                            src={DEFAULT_COVER} 
+                            src={selectedAlbum.coverUrl || `https://picsum.photos/seed/${selectedAlbum._id}/400/400`} 
                             alt="Album Cover" 
                             style={{ width: '200px', height: '200px', borderRadius: '8px', boxShadow: '0 8px 32px rgba(0,0,0,0.6)', objectFit: 'cover' }} 
                         />
@@ -69,15 +67,20 @@ export default function Library({ setCurrentSong }) {
                 <>
                     <h2 className="section-title">Your Albums</h2>
                     <div className="song-grid">
-                        {albums.map(album => (
-                            <div key={album._id} className="song-card" onClick={() => handleAlbumClick(album._id)}>
-                                <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '6px', overflow: 'hidden', marginBottom: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
-                                    <img src={DEFAULT_COVER} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        {albums.map(album => {
+                            // Dynamic Image for Album Grid
+                            const uniqueCover = `https://picsum.photos/seed/${album._id}/400/400`;
+                            
+                            return (
+                                <div key={album._id} className="song-card" onClick={() => handleAlbumClick(album._id)}>
+                                    <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '6px', overflow: 'hidden', marginBottom: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                                        <img src={album.coverUrl || uniqueCover} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    </div>
+                                    <h3>{album.title}</h3>
+                                    <p>{album.artist?.username}</p>
                                 </div>
-                                <h3>{album.title}</h3>
-                                <p>{album.artist?.username}</p>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </>
             )}
