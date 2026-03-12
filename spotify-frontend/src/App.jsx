@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import api from './api/axiosConfig';
 
+// Icons
 import { GoHomeFill, GoSearch } from "react-icons/go";
 import { VscLibrary } from "react-icons/vsc";
 import { FiHeart, FiTrendingUp, FiPlusSquare, FiExternalLink } from "react-icons/fi";
-import { BsSoundwave, BsUpload } from "react-icons/bs"; // Added Upload Icon
+import { BsSoundwave, BsUpload } from "react-icons/bs";
 
+// Components
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import Player from './components/Player';
@@ -32,8 +34,10 @@ function App() {
     const handleLogout = async () => {
         try {
             await api.post('/auth/logout'); 
-        } catch (err) {} 
-        finally {
+        } catch (err) {
+            // 🔥 Fixed: Vercel will crash if this catch block is empty.
+            console.error("Logout error:", err); 
+        } finally {
             setUser(null);
             setCurrentSong(null);
             setActiveTab('home');
@@ -57,7 +61,6 @@ function App() {
                             <h1 style={{ fontSize: '28px', fontWeight: '900', margin: 0, letterSpacing: '-1.5px' }}>Pulse</h1>
                         </div>
                         
-                        {/* Dynamic Main Nav based on Role */}
                         <div className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
                             {user.role === 'artist' ? (
                                 <><BsUpload className="nav-icon" /> Upload Track</>
@@ -66,7 +69,6 @@ function App() {
                             )}
                         </div>
                         
-                        {/* ⚡ ONLY Listeners can see the Search/Discover Tab */}
                         {user.role === 'user' && (
                             <div className={`nav-item ${activeTab === 'search' ? 'active' : ''}`} onClick={() => setActiveTab('search')}>
                                 <GoSearch className="nav-icon"/> Discover
@@ -126,7 +128,6 @@ function App() {
                     </div>
 
                     <div className="content-padding">
-                        {/* ⚡ Completely Removed Search from Artist Routing */}
                         {user.role === 'artist' ? (
                             <>
                                 {activeTab === 'home' && <UploadMusic />}
