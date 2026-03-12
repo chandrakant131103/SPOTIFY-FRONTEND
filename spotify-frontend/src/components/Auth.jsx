@@ -28,19 +28,10 @@ export default function Auth({ setUser }) {
                 background: 'url("https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop") center/cover',
                 position: 'relative'
             }} className="mobile-hide">
-                {/* Darker Overlay for better text visibility */}
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.4), #000)' }}></div>
-                
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.5), #000)' }}></div>
                 <div style={{ position: 'absolute', bottom: '100px', left: '60px', zIndex: 2 }}>
                     <h1 style={{ fontSize: '72px', fontWeight: '900', color: '#ffffff', letterSpacing: '-3px', margin: 0 }}>PULSE</h1>
-                    {/* Fixed visibility: High contrast Violet and Shadow */}
-                    <p style={{ 
-                        fontSize: '22px', 
-                        color: '#a78bfa', 
-                        fontWeight: '700', 
-                        marginTop: '10px',
-                        textShadow: '0 2px 10px rgba(0,0,0,0.5)' 
-                    }}>
+                    <p style={{ fontSize: '22px', color: '#a78bfa', fontWeight: '700', marginTop: '10px' }}>
                         Experience music like never before.
                     </p>
                 </div>
@@ -55,7 +46,7 @@ export default function Auth({ setUser }) {
                 padding: '40px', 
                 background: '#000',
                 position: 'relative',
-                zIndex: 10 // Ensures this side is on top of any abstract background blurs
+                zIndex: 10 
             }}>
                 <form className="form-box" onSubmit={handleSubmit} style={{ background: 'transparent', border: 'none', boxShadow: 'none', width: '100%' }}>
                     <h2 style={{ fontSize: '32px', fontWeight: '800', marginBottom: '8px', color: '#ffffff' }}>
@@ -89,7 +80,7 @@ export default function Auth({ setUser }) {
                     <input name="email" type="email" placeholder="Email address" onChange={handleChange} required style={{ marginBottom: '16px', width: '100%' }} />
                     <input name="password" type="password" placeholder="Password" onChange={handleChange} required style={{ marginBottom: '16px', width: '100%' }} />
                     
-                    {/* Explicit Button Cursor and Z-Index */}
+                    {/* ⚡ GREEN BUTTON RESTORED */}
                     <button 
                         type="submit" 
                         className="btn" 
@@ -99,13 +90,14 @@ export default function Auth({ setUser }) {
                             padding: '16px', 
                             fontSize: '16px', 
                             cursor: 'pointer',
-                            position: 'relative',
-                            zIndex: 20,
-                            background: '#8b5cf6',
-                            color: '#fff'
+                            background: '#1DB954',
+                            color: '#fff',
+                            border: 'none',
+                            fontWeight: '800',
+                            borderRadius: '32px'
                         }}
                     >
-                        {isLogin ? 'Sign In' : 'Sign Up'}
+                        {isLogin ? 'Log In' : 'Sign Up'}
                     </button>
                     
                     <div style={{ textAlign: 'center', marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #222' }}>
@@ -117,10 +109,8 @@ export default function Auth({ setUser }) {
                                 cursor: 'pointer', 
                                 fontSize: '15px', 
                                 fontWeight: 'bold', 
-                                color: '#8b5cf6', 
-                                marginTop: '8px',
-                                position: 'relative',
-                                zIndex: 20 
+                                color: '#1DB954', /* ⚡ Green Toggle Text */
+                                marginTop: '8px'
                             }} 
                             onClick={() => setIsLogin(!isLogin)}
                         >
