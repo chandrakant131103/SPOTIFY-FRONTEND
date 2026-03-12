@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import api from './api/axiosConfig';
+import { Toaster } from 'react-hot-toast'; // Ensures your toast popups work
 
 // Icons
 import { GoHome, GoHomeFill, GoSearch } from "react-icons/go";
 import { VscLibrary } from "react-icons/vsc";
 import { FiPlusSquare, FiHeart } from "react-icons/fi";
-// 1. Swapped FaSpotify for BsSoundwave
 import { BsSoundwave } from "react-icons/bs"; 
 
 // Components
@@ -31,7 +31,7 @@ function App() {
         } finally {
             setUser(null);
             setCurrentSong(null);
-            setActiveTab('home'); // Reset tab on logout
+            setActiveTab('home'); 
         }
     };
 
@@ -45,7 +45,7 @@ function App() {
                 <div className="sidebar">
                     <div className="sidebar-panel">
                         
-                        {/* 2. The New Pulse Logo! */}
+                        {/* The Electric Pulse Logo */}
                         <div 
                           className="brand-logo" 
                           style={{ 
@@ -58,14 +58,14 @@ function App() {
                           }}
                         >
                           <div style={{ 
-                            background: '#1DB954', /* Change this to #3b82f6 if you want a blue theme! */
+                            background: '#3b82f6', /* ⚡ Updated to Electric Blue */
                             padding: '6px', 
                             borderRadius: '8px', 
                             display: 'flex', 
                             alignItems: 'center', 
                             justifyContent: 'center' 
                           }}>
-                            <BsSoundwave size={24} color="#000000" />
+                            <BsSoundwave size={24} color="#ffffff" />
                           </div>
                           
                           <h1 style={{ 
@@ -123,14 +123,13 @@ function App() {
                         <div style={{ visibility: 'hidden' }}>Navigation Arrows</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                             <span style={{ fontSize: '14px', fontWeight: '700', textTransform: 'capitalize' }}>
-                                {user.username} <span style={{ color: '#1DB954', fontSize: '12px' }}>({user.role})</span>
+                                {user.username} <span style={{ color: '#3b82f6', fontSize: '12px' }}>({user.role})</span> {/* ⚡ Updated Role Color */}
                             </span>
                             <button className="btn btn-small btn-outline" onClick={handleLogout}>Log out</button>
                         </div>
                     </div>
 
                     <div className="content-padding">
-                        {/* --- ROUTING LOGIC --- */}
                         {user.role === 'artist' ? (
                             <>
                                 {activeTab === 'home' && <UploadMusic />}
@@ -155,6 +154,14 @@ function App() {
                     <Player currentSong={currentSong} />
                 </div>
             )}
+            
+            {/* Global Toast Notifications */}
+            <Toaster 
+                position="bottom-right" 
+                toastOptions={{
+                    style: { background: '#333', color: '#fff', borderRadius: '8px' }
+                }} 
+            />
         </div>
     );
 }
