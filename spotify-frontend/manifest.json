@@ -4,12 +4,12 @@
   "description": "The heartbeat of modern music. Stream, upload, and discover new tracks.",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "https://via.placeholder.com/192/8b5cf6/ffffff?text=Pulse",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "/icon-512.png",
+      "src": "https://via.placeholder.com/512/8b5cf6/ffffff?text=Pulse",
       "type": "image/png",
       "sizes": "512x512"
     }
