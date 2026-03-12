@@ -73,7 +73,7 @@ export default function Search({ setCurrentSong }) {
                 {filteredSongs.length > 0 ? (
                     filteredSongs.map(song => {
                         // Dynamic Image for Search Results
-                        const uniqueCover = `https://picsum.photos/seed/${song._id}/400/400`;
+                        const uniqueCover = `https://picsum.photos/seed/${song._id}/800/800`;
 
                         return (
                             <div key={song._id} className="song-card" onClick={() => setCurrentSong(song)}>
