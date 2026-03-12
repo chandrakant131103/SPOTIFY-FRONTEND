@@ -21,6 +21,7 @@ function App() {
     const [user, setUser] = useState(null);
     const [currentSong, setCurrentSong] = useState(null);
     const [activeTab, setActiveTab] = useState('home');
+    const [searchQuery, setSearchQuery] = useState(''); // 🔥 Added to sync chips with search
 
     const handleLogout = async () => {
         try {
@@ -32,6 +33,12 @@ function App() {
             setCurrentSong(null);
             setActiveTab('home'); 
         }
+    };
+
+    // 🔥 Function to handle Category Chip clicks
+    const handleCategoryClick = (genre) => {
+        setSearchQuery(genre); // Set the search text
+        setActiveTab('search'); // Jump to search tab
     };
 
     if (!user) return <Auth setUser={setUser} />;
@@ -52,12 +59,11 @@ function App() {
                             alignItems: 'center', 
                             gap: '12px', 
                             marginBottom: '20px',
-                            cursor: 'pointer',
                             padding: '0 8px'
                           }}
                         >
                           <div style={{ 
-                            background: '#8b5cf6', /* Neon Violet */
+                            background: '#1DB954', /* Back to Green Logo */
                             padding: '6px', 
                             borderRadius: '8px', 
                             display: 'flex', 
@@ -71,14 +77,13 @@ function App() {
                             fontSize: '24px', 
                             fontWeight: '800', 
                             color: '#ffffff', 
-                            letterSpacing: '-0.5px',
                             margin: 0
                           }}>
                             Pulse
                           </h1>
                         </div>
 
-                        {/* --- DASHING FEATURE: CATEGORY CHIPS --- */}
+                        {/* --- FUNCTIONAL CATEGORY CHIPS --- */}
                         <div style={{ 
                             display: 'flex', 
                             flexWrap: 'wrap', 
@@ -89,6 +94,8 @@ function App() {
                             {['Chill', 'Rock', 'Energy', 'Focus'].map((genre) => (
                                 <span 
                                     key={genre} 
+                                    onClick={() => handleCategoryClick(genre)}
+                                    className="genre-chip"
                                     style={{ 
                                         padding: '6px 14px', 
                                         background: 'rgba(255,255,255,0.05)', 
@@ -101,14 +108,6 @@ function App() {
                                         border: '1px solid rgba(255,255,255,0.1)',
                                         transition: 'all 0.2s'
                                     }}
-                                    onMouseOver={(e) => {
-                                        e.target.style.background = '#8b5cf6';
-                                        e.target.style.borderColor = '#8b5cf6';
-                                    }}
-                                    onMouseOut={(e) => {
-                                        e.target.style.background = 'rgba(255,255,255,0.05)';
-                                        e.target.style.borderColor = 'rgba(255,255,255,0.1)';
-                                    }}
                                 >
                                     {genre}
                                 </span>
@@ -117,7 +116,7 @@ function App() {
                         
                         <div 
                             className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} 
-                            onClick={() => setActiveTab('home')}
+                            onClick={() => { setActiveTab('home'); setSearchQuery(''); }}
                         >
                             <span className="nav-icon">{activeTab === 'home' ? <GoHomeFill /> : <GoHome />}</span>
                             <span>Home</span>
@@ -158,12 +157,11 @@ function App() {
                     <div className="top-bar">
                         <div style={{ visibility: 'hidden' }}>Navigation Arrows</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                            {/* Premium Status Badge */}
                             <div style={{ 
                                 padding: '4px 12px', 
                                 borderRadius: '20px', 
-                                border: '1px solid #8b5cf6', 
-                                color: '#8b5cf6', 
+                                border: '1px solid #1DB954', 
+                                color: '#1DB954', 
                                 fontSize: '10px', 
                                 fontWeight: '900',
                                 letterSpacing: '1px' 
@@ -171,7 +169,7 @@ function App() {
                                 PREMIUM
                             </div>
                             <span style={{ fontSize: '14px', fontWeight: '700', textTransform: 'capitalize' }}>
-                                {user.username} <span style={{ color: '#8b5cf6', fontSize: '12px' }}>({user.role})</span>
+                                {user.username} <span style={{ color: '#1DB954', fontSize: '12px' }}>({user.role})</span>
                             </span>
                             <button className="btn btn-small btn-outline" onClick={handleLogout}>Log out</button>
                         </div>
@@ -182,14 +180,14 @@ function App() {
                             <>
                                 {activeTab === 'home' && <UploadMusic />}
                                 {activeTab === 'create-album' && <CreateAlbum />}
-                                {activeTab === 'search' && <Search setCurrentSong={setCurrentSong} />}
+                                {activeTab === 'search' && <Search setCurrentSong={setCurrentSong} externalQuery={searchQuery} />}
                             </>
                         ) : (
                             <>
                                 {activeTab === 'home' && <Dashboard setCurrentSong={setCurrentSong} />}
                                 {activeTab === 'library' && <Library setCurrentSong={setCurrentSong} />}
                                 {activeTab === 'liked' && <LikedSongs setCurrentSong={setCurrentSong} />}
-                                {activeTab === 'search' && <Search setCurrentSong={setCurrentSong} />}
+                                {activeTab === 'search' && <Search setCurrentSong={setCurrentSong} externalQuery={searchQuery} />}
                             </>
                         )}
                     </div>
