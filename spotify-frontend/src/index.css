@@ -1,55 +1,58 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+import React, { useState } from 'react';
+import api from '../api/axiosConfig';
 
-:root {
-  --spotify-green: #1DB954;
-  --spotify-green-hover: #1ed760;
-  --pulse-violet: #8b5cf6;
-  --text-base: #ffffff;
-  --text-muted: #a7a7a7;
+export default function Auth({ setUser }) {
+    const [isLogin, setIsLogin] = useState(false); 
+    const [formData, setFormData] = useState({ username: '', email: '', password: '', role: 'user' });
+
+    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const endpoint = isLogin ? '/auth/login' : '/auth/register';
+            const response = await api.post(endpoint, isLogin ? { email: formData.email, password: formData.password } : formData);
+            setUser(response.data.user);
+        } catch (error) {
+            alert(error.response?.data?.message || "Auth failed");
+        }
+    };
+
+    return (
+        <div style={{ display: 'flex', height: '100vh', width: '100vw', background: '#000' }}>
+            {/* Left Side Visual */}
+            <div style={{ 
+                flex: 1.2, background: 'url("https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop") center/cover',
+                position: 'relative', display: 'flex', alignItems: 'flex-end', padding: '80px'
+            }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.3), #000)' }}></div>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                    <h1 style={{ fontSize: '84px', fontWeight: '900', color: '#ffffff', margin: 0 }}>PULSE</h1>
+                    <p style={{ fontSize: '24px', color: '#a78bfa', fontWeight: '700' }}>Experience music like never before.</p>
+                </div>
+            </div>
+
+            {/* Right Side Form */}
+            <div style={{ flex: '0 0 450px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a0a', padding: '40px' }}>
+                <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <h2 style={{ fontSize: '32px', color: '#fff' }}>{isLogin ? 'Log In' : 'Create Account'}</h2>
+                    {!isLogin && (
+                        <>
+                            <input name="username" type="text" placeholder="Username" onChange={handleChange} className="auth-input" required />
+                            <select name="role" onChange={handleChange} className="auth-input" style={{background: '#121212'}}>
+                                <option value="user">Listener</option>
+                                <option value="artist">Artist</option>
+                            </select>
+                        </>
+                    )}
+                    <input name="email" type="email" placeholder="Email address" onChange={handleChange} className="auth-input" required />
+                    <input name="password" type="password" placeholder="Password" onChange={handleChange} className="auth-input" required />
+                    <button type="submit" className="btn" style={{ background: '#1DB954', marginTop: '10px' }}>{isLogin ? 'LOG IN' : 'SIGN UP'}</button>
+                    <p style={{ textAlign: 'center', marginTop: '20px', color: '#1DB954', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setIsLogin(!isLogin)}>
+                        {isLogin ? "New here? Sign up" : "Have an account? Log in"}
+                    </p>
+                </form>
+            </div>
+        </div>
+    );
 }
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Inter', sans-serif;
-  color: var(--text-base);
-  overflow: hidden;
-  background: url('https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
-  background-size: cover;
-}
-
-/* --- Core Layout --- */
-.app-container { display: flex; flex-direction: column; height: 100vh; }
-.main-wrapper { display: flex; flex: 1; overflow: hidden; padding: 8px; gap: 8px; }
-
-/* --- Glass Panels --- */
-.sidebar-panel, .dashboard-area, .top-bar, .player-bar {
-  background: rgba(18, 18, 18, 0.6) !important;
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.sidebar { width: 300px; display: flex; flex-direction: column; gap: 8px; }
-.sidebar-panel { border-radius: 12px; padding: 24px; }
-.dashboard-area { flex: 1; border-radius: 12px; overflow-y: auto; }
-.top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; position: sticky; top: 0; z-index: 10; }
-.player-bar { height: 90px; padding: 0 24px; display: flex; align-items: center; border-radius: 12px; margin: 0 8px 8px 8px; }
-
-/* --- Navigation & Chips --- */
-.nav-item { display: flex; align-items: center; gap: 16px; color: var(--text-muted); font-weight: 700; font-size: 15px; cursor: pointer; transition: color 0.2s; }
-.nav-item:hover, .nav-item.active { color: var(--text-base); }
-.nav-icon { font-size: 24px; }
-
-.genre-chip { padding: 6px 12px; background: rgba(255,255,255,0.05); border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; }
-.genre-chip:hover { background: var(--spotify-green); border-color: var(--spotify-green); }
-
-/* --- Cards --- */
-.song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 24px; padding: 10px; }
-.song-card { background: rgba(255, 255, 255, 0.03); padding: 16px; border-radius: 12px; cursor: pointer; transition: 0.3s; }
-.song-card:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-5px); }
-
-/* --- Buttons & Inputs --- */
-.btn { background-color: var(--spotify-green) !important; color: #fff !important; border: none; padding: 12px 30px; border-radius: 30px; font-weight: 800; cursor: pointer; }
-.btn-outline { background: transparent !important; color: #fff !important; border: 1px solid var(--text-muted) !important; }
-.auth-input { width: 100%; padding: 16px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; margin-bottom: 16px; outline: none; }
