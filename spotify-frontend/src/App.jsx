@@ -1,44 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from './api/axiosConfig';
-
-// Icons
-import { GoHome, GoHomeFill, GoSearch } from "react-icons/go";
+import { GoHomeFill, GoSearch } from "react-icons/go";
 import { VscLibrary } from "react-icons/vsc";
-import { FiPlusSquare, FiHeart } from "react-icons/fi";
-import { BsSoundwave } from "react-icons/bs"; 
+import { FiHeart, FiMessageSquare } from "react-icons/fi";
+import { BsSoundwave } from "react-icons/bs";
 
 // Components
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
-import UploadMusic from './components/UploadMusic';
 import Player from './components/Player';
-import Library from './components/Library';
-import CreateAlbum from './components/CreateAlbum';
 import Search from './components/Search';
-import LikedSongs from './components/LikedSongs'; 
+import Library from './components/Library';
+import LikedSongs from './components/LikedSongs';
 
 function App() {
-    const [user, setUser] = useState(null);
+    // 🔥 Session Persistence Logic: Load user from localStorage on start
+    const [user, setUser] = useState(() => {
+        const savedUser = localStorage.getItem('pulse_session');
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
+    
     const [currentSong, setCurrentSong] = useState(null);
     const [activeTab, setActiveTab] = useState('home');
-    const [searchQuery, setSearchQuery] = useState(''); // 🔥 Added to sync chips with search
 
-    const handleLogout = async () => {
-        try {
-            await api.post('/auth/logout');
-        } catch (err) {
-            console.error("Logout failed", err);
-        } finally {
-            setUser(null);
-            setCurrentSong(null);
-            setActiveTab('home'); 
+    // 🔥 Save user to localStorage whenever the user state changes
+    useEffect(() => {
+        if (user) {
+            localStorage.setItem('pulse_session', JSON.stringify(user));
+        } else {
+            localStorage.removeItem('pulse_session');
         }
-    };
+    }, [user]);
 
-    // 🔥 Function to handle Category Chip clicks
-    const handleCategoryClick = (genre) => {
-        setSearchQuery(genre); // Set the search text
-        setActiveTab('search'); // Jump to search tab
+    const handleLogout = () => {
+        setUser(null);
+        setCurrentSong(null);
+        setActiveTab('home');
     };
 
     if (!user) return <Auth setUser={setUser} />;
@@ -46,162 +43,66 @@ function App() {
     return (
         <div className="app-container">
             <div className="main-wrapper">
-                
-                {/* Modern Sidebar */}
                 <div className="sidebar">
                     <div className="sidebar-panel">
-                        
-                        {/* Premium Pulse Logo */}
-                        <div 
-                          className="brand-logo" 
-                          style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '12px', 
-                            marginBottom: '20px',
-                            padding: '0 8px'
-                          }}
-                        >
-                          <div style={{ 
-                            background: '#1DB954', /* Back to Green Logo */
-                            padding: '6px', 
-                            borderRadius: '8px', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center' 
-                          }}>
-                            <BsSoundwave size={24} color="#ffffff" />
-                          </div>
-                          
-                          <h1 style={{ 
-                            fontSize: '24px', 
-                            fontWeight: '800', 
-                            color: '#ffffff', 
-                            margin: 0
-                          }}>
-                            Pulse
-                          </h1>
-                        </div>
-
-                        {/* --- FUNCTIONAL CATEGORY CHIPS --- */}
-                        <div style={{ 
-                            display: 'flex', 
-                            flexWrap: 'wrap', 
-                            gap: '8px', 
-                            marginBottom: '24px',
-                            padding: '0 8px' 
-                        }}>
-                            {['Chill', 'Rock', 'Energy', 'Focus'].map((genre) => (
-                                <span 
-                                    key={genre} 
-                                    onClick={() => handleCategoryClick(genre)}
-                                    className="genre-chip"
-                                    style={{ 
-                                        padding: '6px 14px', 
-                                        background: 'rgba(255,255,255,0.05)', 
-                                        borderRadius: '20px', 
-                                        fontSize: '11px', 
-                                        fontWeight: '700',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '1px',
-                                        cursor: 'pointer',
-                                        border: '1px solid rgba(255,255,255,0.1)',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    {genre}
-                                </span>
-                            ))}
+                        <div className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                            <div style={{ background: '#1DB954', padding: '6px', borderRadius: '8px' }}><BsSoundwave size={24} color="#fff" /></div>
+                            <h1 style={{ fontSize: '24px', fontWeight: '800', margin: 0 }}>Pulse</h1>
                         </div>
                         
-                        <div 
-                            className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} 
-                            onClick={() => { setActiveTab('home'); setSearchQuery(''); }}
-                        >
-                            <span className="nav-icon">{activeTab === 'home' ? <GoHomeFill /> : <GoHome />}</span>
-                            <span>Home</span>
-                        </div>
-                        
-                        <div 
-                            className={`nav-item ${activeTab === 'search' ? 'active' : ''}`} 
-                            onClick={() => setActiveTab('search')}
-                        >
-                            <span className="nav-icon"><GoSearch /></span>
-                            <span>Search</span>
-                        </div>
+                        <div className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}><GoHomeFill size={24}/> Home</div>
+                        <div className={`nav-item ${activeTab === 'search' ? 'active' : ''}`} onClick={() => setActiveTab('search')}><GoSearch size={24}/> Search</div>
                     </div>
 
                     <div className="sidebar-panel" style={{ flex: 1 }}>
-                        {user.role === 'user' ? (
-                            <>
-                                <div className={`nav-item ${activeTab === 'library' ? 'active' : ''}`} onClick={() => setActiveTab('library')}>
-                                    <span className="nav-icon"><VscLibrary /></span>
-                                    <span>Your Albums</span>
-                                </div>
-                                <div className={`nav-item ${activeTab === 'liked' ? 'active' : ''}`} onClick={() => setActiveTab('liked')}>
-                                    <span className="nav-icon"><FiHeart /></span>
-                                    <span>Liked Songs</span>
-                                </div>
-                            </>
-                        ) : (
-                            <div className={`nav-item ${activeTab === 'create-album' ? 'active' : ''}`} onClick={() => setActiveTab('create-album')}>
-                                <span className="nav-icon"><FiPlusSquare /></span>
-                                <span>Create Album</span>
-                            </div>
-                        )}
+                        <div className={`nav-item ${activeTab === 'library' ? 'active' : ''}`} onClick={() => setActiveTab('library')}><VscLibrary size={24}/> Your Albums</div>
+                        <div className={`nav-item ${activeTab === 'liked' ? 'active' : ''}`} onClick={() => setActiveTab('liked')}><FiHeart size={24}/> Liked Songs</div>
+                        
+                        {/* ⚡ Contributor Feature for Listeners */}
+                        <div 
+                            className={`nav-item ${activeTab === 'contribute' ? 'active' : ''}`} 
+                            onClick={() => setActiveTab('contribute')}
+                            style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px', color: '#1DB954' }}
+                        >
+                            <FiMessageSquare size={22} />
+                            <span>Contribute</span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Dashboard Area */}
                 <div className="dashboard-area">
                     <div className="top-bar">
-                        <div style={{ visibility: 'hidden' }}>Navigation Arrows</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                            <div style={{ 
-                                padding: '4px 12px', 
-                                borderRadius: '20px', 
-                                border: '1px solid #1DB954', 
-                                color: '#1DB954', 
-                                fontSize: '10px', 
-                                fontWeight: '900',
-                                letterSpacing: '1px' 
-                            }}>
-                                PREMIUM
-                            </div>
-                            <span style={{ fontSize: '14px', fontWeight: '700', textTransform: 'capitalize' }}>
-                                {user.username} <span style={{ color: '#1DB954', fontSize: '12px' }}>({user.role})</span>
-                            </span>
+                        <div style={{ color: '#1DB954', fontWeight: '800', letterSpacing: '1px' }}>PREMIUM</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <span style={{fontWeight: '600'}}>{user.username}</span>
                             <button className="btn btn-small btn-outline" onClick={handleLogout}>Log out</button>
                         </div>
                     </div>
 
                     <div className="content-padding">
-                        {user.role === 'artist' ? (
-                            <>
-                                {activeTab === 'home' && <UploadMusic />}
-                                {activeTab === 'create-album' && <CreateAlbum />}
-                                {activeTab === 'search' && <Search setCurrentSong={setCurrentSong} externalQuery={searchQuery} />}
-                            </>
-                        ) : (
-                            <>
-                                {activeTab === 'home' && <Dashboard setCurrentSong={setCurrentSong} />}
-                                {activeTab === 'library' && <Library setCurrentSong={setCurrentSong} />}
-                                {activeTab === 'liked' && <LikedSongs setCurrentSong={setCurrentSong} />}
-                                {activeTab === 'search' && <Search setCurrentSong={setCurrentSong} externalQuery={searchQuery} />}
-                            </>
+                        {activeTab === 'home' && <Dashboard setCurrentSong={setCurrentSong} />}
+                        {activeTab === 'search' && <Search setCurrentSong={setCurrentSong} />}
+                        {activeTab === 'library' && <Library setCurrentSong={setCurrentSong} />}
+                        {activeTab === 'liked' && <LikedSongs setCurrentSong={setCurrentSong} />}
+                        
+                        {/* ⚡ Contribute Tab Content */}
+                        {activeTab === 'contribute' && (
+                            <div className="form-box" style={{maxWidth: '600px'}}>
+                                <h2 className="section-title">Community Pulse</h2>
+                                <p style={{color: '#a7a7a7', marginBottom: '20px'}}>Help us grow! Suggest new artists, genres, or report issues directly to our developers.</p>
+                                <textarea 
+                                    className="auth-input" 
+                                    placeholder="Type your suggestion here..." 
+                                    style={{height: '150px', resize: 'none', marginBottom: '20px'}}
+                                />
+                                <button className="btn" onClick={() => alert("Contribution received! Thank you for helping PULSE.")}>Submit Contribution</button>
+                            </div>
                         )}
                     </div>
                 </div>
             </div>
-
-            {/* Bottom Player */}
-            {user.role === 'user' && (
-                <div className="player-bar">
-                    <Player currentSong={currentSong} />
-                </div>
-            )}
+            {user.role === 'user' && <div className="player-bar"><Player currentSong={currentSong} /></div>}
         </div>
     );
 }
-
 export default App;
