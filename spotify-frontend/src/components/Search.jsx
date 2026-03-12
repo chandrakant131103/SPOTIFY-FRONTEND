@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 
@@ -6,35 +5,35 @@ export default function Search({ setCurrentSong, externalQuery }) {
     const [query, setQuery] = useState(externalQuery || '');
     const [allSongs, setAllSongs] = useState([]);
     const [filteredSongs, setFilteredSongs] = useState([]);
+    const [error, setError] = useState('');
 
-    // Sync with Sidebar Chips
+    // ⚡ Sync with Category Chips from Sidebar
     useEffect(() => {
-        if (externalQuery !== undefined) setQuery(externalQuery);
+        if (externalQuery) {
+            setQuery(externalQuery);
+        }
     }, [externalQuery]);
 
     useEffect(() => {
-        const fetchMusic = async () => {
+        const fetchAllMusic = async () => {
             try {
-                const res = await api.get('/music/');
-                setAllSongs(res.data.music);
-                setFilteredSongs(res.data.music);
+                const response = await api.get('/music/');
+                setAllSongs(response.data.music);
+                setFilteredSongs(response.data.music);
             } catch (err) {
-                console.error("Fetch error", err);
+                console.error("Search fetch error:", err);
+                setError("Could not load music.");
             }
         };
-        fetchMusic();
+        fetchAllMusic();
     }, []);
 
+    // Filter logic
     useEffect(() => {
-        const lowerQuery = query.toLowerCase().trim();
-        if (!lowerQuery) {
-            setFilteredSongs(allSongs);
-            return;
-        }
-        const results = allSongs.filter(s => 
-            s.title.toLowerCase().includes(lowerQuery) || 
-            s.artist?.username?.toLowerCase().includes(lowerQuery) ||
-            (s.genre && s.genre.toLowerCase().includes(lowerQuery))
+        const lowerCaseQuery = query.toLowerCase();
+        const results = allSongs.filter(song => 
+            song.title.toLowerCase().includes(lowerCaseQuery) || 
+            (song.artist?.username && song.artist.username.toLowerCase().includes(lowerCaseQuery))
         );
         setFilteredSongs(results);
     }, [query, allSongs]);
@@ -44,53 +43,44 @@ export default function Search({ setCurrentSong, externalQuery }) {
             <div style={{ marginBottom: '40px' }}>
                 <input 
                     type="text" 
-                    placeholder="Search for songs, artists, or genres..." 
-                    value={query} 
-                    onChange={(e) => setQuery(e.target.value)} 
-                    className="auth-input" 
-                    style={{ maxWidth: '450px', borderRadius: '32px' }} 
+                    placeholder="Search for tracks or artists..." 
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    style={{
+                        width: '100%', maxWidth: '450px', padding: '16px 24px', borderRadius: '32px',
+                        border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(0,0,0,0.5)',
+                        color: 'white', fontSize: '16px', outline: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                    }}
                 />
             </div>
 
             <h2 className="section-title">
-                {query ? `Results for "${query}"` : 'Browse All Music'}
+                {query ? `Results for "${query}"` : 'Browse All Tracks'}
             </h2>
 
-            {filteredSongs.length === 0 ? (
-                <div style={{ 
-                    textAlign: 'center', 
-                    padding: '80px 20px', 
-                    background: 'rgba(255,255,255,0.02)', 
-                    borderRadius: '12px',
-                    border: '1px dashed rgba(255,255,255,0.1)'
-                }}>
-                    <h3 style={{ color: '#fff', marginBottom: '10px' }}>No matches found</h3>
-                    <p style={{ color: '#a7a7a7' }}>Try checking your spelling or searching for something else.</p>
-                    <button 
-                        className="btn btn-small btn-outline" 
-                        style={{ marginTop: '20px' }}
-                        onClick={() => setQuery('')}
-                    >
-                        Clear Search
-                    </button>
-                </div>
-            ) : (
-                <div className="song-grid">
-                    {filteredSongs.map(song => (
+            {error && <p style={{ color: '#ff4d4d' }}>{error}</p>}
+
+            <div className="song-grid">
+                {filteredSongs.map(song => {
+                    const uniqueCover = `https://picsum.photos/seed/${song._id}/800/800`;
+                    return (
                         <div key={song._id} className="song-card" onClick={() => setCurrentSong(song)}>
-                            <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '10px', overflow: 'hidden', marginBottom: '16px', boxShadow: '0 8px 30px rgba(139, 92, 246, 0.2)' }}>
+                            <div style={{ 
+                                width: '100%', aspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', 
+                                marginBottom: '16px', boxShadow: '0 8px 30px rgba(139, 92, 246, 0.3)' 
+                            }}>
                                 <img 
-                                    src={song.coverUrl || `https://picsum.photos/seed/${song._id}/800/800`} 
+                                    src={song.coverUrl || uniqueCover} 
                                     alt="Cover" 
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(1.4)' }} 
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(1.8) contrast(1.2)' }} 
                                 />
                             </div>
                             <h3>{song.title}</h3>
-                            <p>{song.artist?.username || 'Pulse Artist'}</p>
+                            <p>{song.artist?.username || 'Unknown Artist'}</p>
                         </div>
-                    ))}
-                </div>
-            )}
+                    );
+                })}
+            </div>
         </div>
     );
 }
