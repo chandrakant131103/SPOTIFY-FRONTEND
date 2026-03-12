@@ -22,6 +22,14 @@ export default function Dashboard({ setCurrentSong }) {
         fetchData();
     }, []);
 
+    // Pick a random song to play when Hero button is clicked
+    const handleHeroPlay = () => {
+        if (songs.length > 0) {
+            const randomIndex = Math.floor(Math.random() * songs.length);
+            setCurrentSong(songs[randomIndex]);
+        }
+    };
+
     const handleLike = async (e, songId) => {
         e.stopPropagation(); 
         try {
@@ -45,16 +53,19 @@ export default function Dashboard({ setCurrentSong }) {
                     <span style={{ textTransform: 'uppercase', fontSize: '12px', fontWeight: '800', letterSpacing: '3px', color: 'rgba(255,255,255,0.7)' }}>Featured Artist</span>
                     <h1 style={{ fontSize: '56px', fontWeight: '900', margin: '10px 0', lineHeight: 1 }}>Neon Nights</h1>
                     <p style={{ fontSize: '16px', marginBottom: '25px', color: 'rgba(255,255,255,0.8)' }}>Dive into the latest curated hits from underground electronic creators.</p>
-                    <button className="btn" style={{ background: '#fff', color: '#000', borderRadius: '50px' }}>Listen Now</button>
+                    
+                    <button 
+                        className="btn" 
+                        onClick={handleHeroPlay}
+                        style={{ border: 'none' }} /* Uses .btn class from CSS */
+                    >
+                        Listen Now
+                    </button>
                 </div>
-                {/* Decorative Glowing Circle */}
-                <div style={{ 
-                    position: 'absolute', right: '-10%', top: '-20%', width: '400px', height: '400px', 
-                    background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(60px)' 
-                }}></div>
+                <div style={{ position: 'absolute', right: '-10%', top: '-20%', width: '400px', height: '400px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(60px)' }}></div>
             </div>
 
-            <h2 className="section-title">Discover Weekly</h2>
+            <h2 className="section-title">Fresh Discoveries</h2>
             <div className="song-grid">
                 {songs.map(song => {
                     const uniqueCover = `https://picsum.photos/seed/${song._id}/800/800`;
@@ -67,10 +78,13 @@ export default function Dashboard({ setCurrentSong }) {
                                 <img 
                                     src={song.coverUrl || uniqueCover} 
                                     alt="Cover" 
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(1.8) contrast(1.2) brightness(1.1)' }} 
+                                    style={{ 
+                                        width: '100%', height: '100%', objectFit: 'cover',
+                                        filter: 'saturate(1.8) contrast(1.2) brightness(1.1)' 
+                                    }} 
                                 />
                                 <div 
-                                    onClick={(e) => handleLike(e, song._id)}
+                                    onClick={(e) => handleLike(e, song._id)} 
                                     style={{ position: 'absolute', bottom: '10px', right: '10px', cursor: 'pointer', background: 'rgba(0,0,0,0.6)', padding: '8px', borderRadius: '50%' }}
                                 >
                                     {likedIds.includes(song._id) ? <FaHeart size={18} color="#8b5cf6" /> : <FiHeart size={18} color="#ffffff" />}
