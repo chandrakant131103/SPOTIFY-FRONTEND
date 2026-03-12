@@ -79,65 +79,51 @@ body {
 /* =========================================================
    MOBILE RESPONSIVE
    ========================================================= */
-/* =========================================================
-   MOBILE RESPONSIVE (Auth Fix & Scroll Unlock)
-   ========================================================= */
+
 @media (max-width: 768px) {
-  /* 1. UNLOCK THE BODY: Allow vertical scrolling on mobile */
-  body { 
-    overflow-y: auto !important; 
-    height: auto !important; 
+  /* 1. Reset the entire screen behavior */
+  html, body {
+    overflow-y: auto !important;
+    height: auto !important;
+    position: relative;
   }
 
-  .app-container { 
-    height: auto !important; 
-    min-height: 100vh; 
-    overflow: visible !important; 
-  }
-
-  /* 2. AUTH CONTAINER: Allow it to be taller than the screen */
+  /* 2. Force the Auth Container to be scrollable */
   .auth-container {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-start !important; /* Prevents centering things off-screen */
-    align-items: center !important;
-    padding: 60px 20px !important; /* Space for the top and bottom */
-    min-height: 100vh;
-    width: 100vw;
-    overflow-y: auto !important; 
-    -webkit-overflow-scrolling: touch; /* Smooth sliding on iPhone */
+    position: relative !important;
+    display: block !important; /* Switch from flex to block to allow natural scrolling */
+    width: 100vw !important;
+    min-height: 100vh !important;
+    padding: 20px 10px 100px 10px !important; /* Extra bottom padding */
+    overflow-y: auto !important;
+    background: #000 !important; /* Solid black background to debug visibility */
   }
 
-  /* Hide the desktop hero text to bring the form higher up */
-  .auth-hero-text, 
-  .auth-container > div:first-child:not(.form-box) { 
-    display: none !important; 
-  }
-
-  /* 3. FORM BOX: Ensure it doesn't get cut off */
+  /* 3. Force the Form Box to appear at the top */
   .form-box, 
   div[style*="width: 450px"],
-  div[style*="maxWidth: 450px"] {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 30px 20px !important;
-    margin: 0 auto !important;
-    background: rgba(10, 10, 10, 0.95) !important;
-    border-radius: 16px !important;
+  div[id="auth-form-wrapper"] {
     position: relative !important;
-    z-index: 10;
+    top: 0 !important;
+    margin: 40px auto !important; /* Pushes it down slightly from the top bar */
+    width: 95% !important;
+    max-width: 100% !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 9999 !important;
   }
 
-  /* 4. DASHBOARD FIX: Keep the main app locked, only scroll auth */
-  .main-wrapper { 
-    flex-direction: column; 
-    padding: 0; 
-    height: calc(100vh - 70px); /* Height minus bottom nav */
+  /* Hide the hero/side image on mobile so it doesn't block the form */
+  .auth-container > div:first-child, 
+  .auth-hero-section {
+    display: none !important;
   }
 
-  .dashboard-area { 
-    border-radius: 0; 
-    padding-bottom: 180px; 
+  /* 4. Ensure inputs are large enough to tap */
+  .auth-input {
+    height: 55px !important;
+    font-size: 16px !important; /* Prevents iOS auto-zoom */
   }
 }
  
