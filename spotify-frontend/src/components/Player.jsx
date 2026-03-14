@@ -1,149 +1,157 @@
 import React, { useState, useRef, useEffect } from 'react';
-// 🔥 Import createPortal to "teleport" the HD screen out of the bottom bar
-import { createPortal } from 'react-dom'; 
+import { createPortal } from 'react-dom'; 
 import { FiVolume2, FiVolumeX, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { FaPlayCircle, FaPauseCircle, FaStepBackward, FaStepForward } from "react-icons/fa";
 
-export default function Player({ currentSong }) {
-    const audioRef = useRef(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [duration, setDuration] = useState(0);
-    const [volume, setVolume] = useState(1);
-    
-    // State to track if the HD screen is open
-    const [isExpanded, setIsExpanded] = useState(false);
-    
-    useEffect(() => {
-        if (currentSong && audioRef.current) {
-            audioRef.current.play();
-            setIsPlaying(true);
-        }
-    }, [currentSong]);
+export default function Player({ currentSong, playNext, playPrevious }) {
+    const audioRef = useRef(null);
+    const canvasRef = useRef(null);
+    const analyzerRef = useRef(null);
+    const animationRef = useRef(null);
 
-    const togglePlayPause = () => {
-        if (!audioRef.current) return;
-        if (isPlaying) audioRef.current.pause();
-        else audioRef.current.play();
-        setIsPlaying(!isPlaying);
-    };
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(1);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [accentColor, setAccentColor] = useState('#8b5cf6');
 
-    const handleTimeUpdate = () => setCurrentTime(audioRef.current.currentTime);
-    const handleLoadedMetadata = () => setDuration(audioRef.current.duration);
-    
-    const handleSeek = (e) => {
-        const time = Number(e.target.value);
-        audioRef.current.currentTime = time;
-        setCurrentTime(time);
-    };
+    // --- 🔊 AUDIO VISUALIZER LOGIC ---
+    const initVisualizer = () => {
+        if (!audioRef.current || analyzerRef.current) return;
 
-    const handleVolume = (e) => {
-        const vol = Number(e.target.value);
-        audioRef.current.volume = vol;
-        setVolume(vol);
-    };
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createMediaElementSource(audioRef.current);
+        const analyzer = audioContext.createAnalyser();
 
-    const formatTime = (time) => {
-        if (isNaN(time)) return "0:00";
-        const minutes = Math.floor(time / 60);
-        const seconds = Math.floor(time % 60);
-        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-    };
+        source.connect(analyzer);
+        analyzer.connect(audioContext.destination);
+        analyzer.fftSize = 256; // Quality of bars
+        analyzerRef.current = analyzer;
+    };
 
-    if (!currentSong) return (
-        <div style={{ width: '100%', textAlign: 'center', color: '#a7a7a7', fontSize: '14px', fontWeight: '600' }}>
-            Select a track to start listening
-        </div>
-    );
+    const drawVisualizer = () => {
+        if (!canvasRef.current || !analyzerRef.current) return;
 
-    // 🔥 HD IMAGE TRICK
-    const hdCover = currentSong.coverUrl || `https://picsum.photos/seed/${currentSong._id}/1080/1080`;
-    const smallCover = currentSong.coverUrl || `https://picsum.photos/seed/${currentSong._id}/400/400`;
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        const analyzer = analyzerRef.current;
+        const bufferLength = analyzer.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
 
-    return (
-        <>
-            {/* 1. AUDIO KEEPS PLAYING (Never unmounts, meaning no music interruptions!) */}
-            <audio ref={audioRef} src={currentSong.uri} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setIsPlaying(false)} />
+        const renderFrame = () => {
+            animationRef.current = requestAnimationFrame(renderFrame);
+            analyzer.getByteFrequencyData(dataArray);
 
-            {/* 2. BOTTOM BAR (Click to expand) */}
-            <div 
-                onClick={() => setIsExpanded(true)}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
-            >
-                <div className="player-left" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <img src={smallCover} alt="Cover" style={{ width: '56px', height: '56px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} />
-                    <div style={{ overflow: 'hidden' }}>
-                        <h4 style={{ fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.title}</h4>
-                        <p style={{ fontSize: '12px', color: '#a7a7a7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.artist?.username || 'Unknown Artist'}</p>
-                    </div>
-                </div>
-                
-                <div className="player-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                    <div className="player-controls" style={{ display: 'flex', alignItems: 'center', gap: '20px', color: '#b3b3b3' }}>
-                        <FaStepBackward size={16} onClick={(e) => e.stopPropagation()} style={{ cursor: 'pointer' }} className="hover:text-white" />
-                        
-                        {/* Stop Propagation prevents the click from expanding the player when you just want to pause */}
-                        <div onClick={(e) => { e.stopPropagation(); togglePlayPause(); }} style={{ cursor: 'pointer', color: 'white' }}>
-                            {isPlaying ? <FaPauseCircle size={36} className="hover:scale-105" /> : <FaPlayCircle size={36} className="hover:scale-105" />}
-                        </div>
-                        
-                        <FaStepForward size={16} onClick={(e) => e.stopPropagation()} style={{ cursor: 'pointer' }} className="hover:text-white" />
-                    </div>
-                    
-                    <div className="player-seek" onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', fontSize: '12px', color: '#a7a7a7' }}>
-                        <span>{formatTime(currentTime)}</span>
-                        <input type="range" min="0" max={duration || 100} value={currentTime} onChange={(e) => { e.stopPropagation(); handleSeek(e); }} style={{ flex: 1 }} />
-                        <span>{formatTime(duration)}</span>
-                    </div>
-                </div>
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let x = 0;
 
-                <div className="player-right" onClick={(e) => e.stopPropagation()} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px', color: '#a7a7a7' }}>
-                    {volume === 0 ? <FiVolumeX size={20} /> : <FiVolume2 size={20} />}
-                    <input type="range" min="0" max="1" step="0.01" value={volume} onChange={(e) => { e.stopPropagation(); handleVolume(e); }} className="volume-slider" style={{ width: '80px' }} />
-                    <FiChevronUp size={24} style={{ cursor: 'pointer', marginLeft: '10px' }} onClick={() => setIsExpanded(true)} className="hover:text-white" />
-                </div>
-            </div>
+            for (let i = 0; i < bufferLength; i++) {
+                const barHeight = dataArray[i] / 2;
+                ctx.fillStyle = accentColor;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                x += barWidth + 1;
+            }
+        };
+        renderFrame();
+    };
 
-            {/* 3. HD FULL SCREEN POP-UP (Teleported out of the bottom bar) */}
-            {isExpanded && createPortal(
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-                    background: 'linear-gradient(to bottom, #121212, #000000)', /* Clean Dark Theme */
-                    zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    padding: '40px 20px', overflowY: 'auto'
-                }}>
-                    {/* Minimize Button */}
-                    <div style={{ width: '100%', maxWidth: '600px', display: 'flex', justifyContent: 'flex-start', marginBottom: '20px' }}>
-                        <FiChevronDown size={36} color="#ffffff" style={{ cursor: 'pointer' }} onClick={() => setIsExpanded(false)} className="hover:scale-105" />
-                    </div>
+    useEffect(() => {
+        if (isExpanded) {
+            initVisualizer();
+            setTimeout(drawVisualizer, 100);
+        } else {
+            cancelAnimationFrame(animationRef.current);
+        }
+        return () => cancelAnimationFrame(animationRef.current);
+    }, [isExpanded]);
 
-                    {/* Massive HD Album Art */}
-                    <img src={hdCover} alt="HD Cover" style={{ width: '100%', maxWidth: '400px', aspectRatio: '1/1', borderRadius: '12px', boxShadow: '0 20px 50px rgba(0,0,0,0.8)', objectFit: 'cover' }} />
+    // --- 🎨 DYNAMIC THEME ---
+    useEffect(() => {
+        if (currentSong?.coverUrl) {
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.src = currentSong.coverUrl;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 1; canvas.height = 1;
+                ctx.drawImage(img, 0, 0, 1, 1);
+                const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+                setAccentColor(`rgb(${r}, ${g}, ${b})`);
+            };
+        }
+    }, [currentSong]);
 
-                    {/* Big Song Info */}
-                    <div style={{ width: '100%', maxWidth: '400px', marginTop: '40px', textAlign: 'left' }}>
-                        <h2 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '8px', color: '#ffffff' }}>{currentSong.title}</h2>
-                        <p style={{ fontSize: '18px', color: '#a7a7a7' }}>{currentSong.artist?.username || 'Unknown Artist'}</p>
-                    </div>
+    const togglePlayPause = () => {
+        if (isPlaying) audioRef.current.pause();
+        else audioRef.current.play();
+        setIsPlaying(!isPlaying);
+    };
 
-                    {/* Big Seek Bar */}
-                    <div style={{ width: '100%', maxWidth: '400px', marginTop: '30px', display: 'flex', alignItems: 'center', gap: '15px', color: '#a7a7a7', fontSize: '14px' }}>
-                        <span>{formatTime(currentTime)}</span>
-                        <input type="range" min="0" max={duration || 100} value={currentTime} onChange={handleSeek} style={{ flex: 1, height: '6px' }} />
-                        <span>{formatTime(duration)}</span>
-                    </div>
+    if (!currentSong) return null;
 
-                    {/* Big Controls */}
-                    <div style={{ width: '100%', maxWidth: '400px', marginTop: '30px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px' }}>
-                        <FaStepBackward size={28} color="#b3b3b3" style={{ cursor: 'pointer' }} className="hover:text-white" />
-                        <div onClick={togglePlayPause} style={{ cursor: 'pointer', color: 'white' }}>
-                            {isPlaying ? <FaPauseCircle size={72} className="hover:scale-105" /> : <FaPlayCircle size={72} className="hover:scale-105" />}
-                        </div>
-                        <FaStepForward size={28} color="#b3b3b3" style={{ cursor: 'pointer' }} className="hover:text-white" />
-                    </div>
-                </div>,
-                document.body // This is the magic that tells it to render over the entire webpage!
-            )}
-        </>
-    );
+    return (
+        <>
+            <audio ref={audioRef} src={currentSong.uri} 
+                onTimeUpdate={() => setCurrentTime(audioRef.current.currentTime)} 
+                onLoadedMetadata={() => setDuration(audioRef.current.duration)}
+                onEnded={() => playNext?.()}
+                crossOrigin="anonymous" 
+            />
+
+            {/* --- BOTTOM BAR --- */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', background: '#121212', height: '90px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flex: 1 }} onClick={() => setIsExpanded(true)}>
+                    <img src={currentSong.coverUrl} alt="art" style={{ width: '56px', height: '56px', borderRadius: '4px' }} />
+                    <div>
+                        <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{currentSong.title}</div>
+                        <div style={{ fontSize: '12px', color: '#b3b3b3' }}>{currentSong.artist?.username}</div>
+                    </div>
+                </div>
+
+                <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '8px' }}>
+                        <FaStepBackward onClick={() => playPrevious?.()} style={{ cursor: 'pointer' }} />
+                        <div onClick={togglePlayPause} style={{ cursor: 'pointer' }}>
+                            {isPlaying ? <FaPauseCircle size={36} /> : <FaPlayCircle size={36} />}
+                        </div>
+                        <FaStepForward onClick={() => playNext?.()} style={{ cursor: 'pointer' }} />
+                    </div>
+                    <input type="range" min="0" max={duration || 0} value={currentTime} onChange={(e) => audioRef.current.currentTime = e.target.value} style={{ width: '100%', accentColor: accentColor }} />
+                </div>
+
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
+                    <FiVolume2 size={20} />
+                    <input type="range" min="0" max="1" step="0.01" value={volume} onChange={(e) => { setVolume(e.target.value); audioRef.current.volume = e.target.value; }} style={{ width: '80px', accentColor: accentColor }} />
+                    <FiChevronUp size={24} onClick={() => setIsExpanded(true)} style={{ cursor: 'pointer' }} />
+                </div>
+            </div>
+
+            {/* --- FULL SCREEN + VISUALIZER --- */}
+            {isExpanded && createPortal(
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#000', zIndex: 10000, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px' }}>
+                    <FiChevronDown size={40} onClick={() => setIsExpanded(false)} style={{ alignSelf: 'flex-start', cursor: 'pointer' }} />
+                    
+                    <img src={currentSong.coverUrl} style={{ width: '300px', borderRadius: '12px', marginTop: '20px', boxShadow: `0 0 50px ${accentColor}55` }} />
+                    
+                    {/* ⚡ THE VISUALIZER CANVAS */}
+                    <canvas ref={canvasRef} width="600" height="150" style={{ width: '100%', maxWidth: '600px', marginTop: '40px' }} />
+
+                    <h1 style={{ marginTop: '20px', fontSize: '32px' }}>{currentSong.title}</h1>
+                    <p style={{ color: '#b3b3b3' }}>{currentSong.artist?.username}</p>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '50px', marginTop: '40px' }}>
+                        <FaStepBackward size={30} onClick={playPrevious} />
+                        <div onClick={togglePlayPause}>
+                            {isPlaying ? <FaPauseCircle size={80} /> : <FaPlayCircle size={80} />}
+                        </div>
+                        <FaStepForward size={30} onClick={playNext} />
+                    </div>
+                </div>,
+                document.body
+            )}
+        </>
+    );
 }
