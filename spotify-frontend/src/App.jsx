@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import api from './api/axiosConfig';
 import { GoHomeFill, GoSearch } from "react-icons/go";
 import { VscLibrary } from "react-icons/vsc";
-import { FiHeart, FiPlusSquare, FiUser } from "react-icons/fi";
+import { FiHeart, FiUser } from "react-icons/fi";
 import { BsSoundwave, BsUpload } from "react-icons/bs";
 
 import Auth from './components/Auth';
@@ -24,26 +24,27 @@ function App() {
     const [queue, setQueue] = useState([]); 
     const [activeTab, setActiveTab] = useState('home');
 
-    // --- 🎵 Fix: Skip Logic ---
+    // --- 🎵 Fix: Reliable Skip Logic ---
     const playNext = useCallback(() => {
         if (!currentSong || queue.length === 0) return;
-        const index = queue.findIndex(s => s._id === currentSong._id);
-        if (index !== -1 && index < queue.length - 1) {
-            setCurrentSong(queue[index + 1]);
+        const currentIndex = queue.findIndex(s => s._id === currentSong._id);
+        if (currentIndex !== -1 && currentIndex < queue.length - 1) {
+            setCurrentSong(queue[currentIndex + 1]);
         }
     }, [currentSong, queue]);
 
     const playPrevious = useCallback(() => {
         if (!currentSong || queue.length === 0) return;
-        const index = queue.findIndex(s => s._id === currentSong._id);
-        if (index > 0) {
-            setCurrentSong(queue[index - 1]);
+        const currentIndex = queue.findIndex(s => s._id === currentSong._id);
+        if (currentIndex > 0) {
+            setCurrentSong(queue[currentIndex - 1]);
         }
     }, [currentSong, queue]);
 
     const handlePlaySong = (song, list = []) => {
         setCurrentSong(song);
-        setQueue(list);
+        // If a list is provided (from Dashboard/Search), update the queue
+        if (list.length > 0) setQueue(list);
     };
 
     if (!user) return <Auth setUser={setUser} />;
@@ -51,7 +52,6 @@ function App() {
     return (
         <div className="app-container">
             <div className="main-wrapper">
-                {/* --- SIDEBAR RESTORED --- */}
                 <div className="sidebar">
                     <div className="sidebar-panel">
                         <div className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '30px' }}>
@@ -60,37 +60,35 @@ function App() {
                         </div>
                         
                         <div className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
-                            {user.role === 'artist' ? <><BsUpload /> Upload</> : <><GoHomeFill /> Home</>}
+                            {user.role === 'artist' ? <><BsUpload className="nav-icon" /> Upload</> : <><GoHomeFill className="nav-icon" /> Home</>}
                         </div>
                         
                         {user.role === 'user' && (
                             <div className={`nav-item ${activeTab === 'search' ? 'active' : ''}`} onClick={() => setActiveTab('search')}>
-                                <GoSearch /> Discover
+                                <GoSearch className="nav-icon" /> Discover
                             </div>
                         )}
                     </div>
 
-                    {/* --- COLLECTION & LIKED (Restored) --- */}
+                    {/* --- RE-ADDED SECTIONS --- */}
                     <div className="sidebar-panel" style={{ flex: 1 }}>
-                        <p style={{ fontSize: '12px', color: '#555', marginBottom: '15px', paddingLeft: '15px' }}>YOUR LIBRARY</p>
+                        <p style={{ fontSize: '11px', color: '#555', marginBottom: '15px', paddingLeft: '15px', fontWeight: 'bold' }}>YOUR LIBRARY</p>
                         <div className={`nav-item ${activeTab === 'library' ? 'active' : ''}`} onClick={() => setActiveTab('library')}>
-                            <VscLibrary /> Collection
+                            <VscLibrary className="nav-icon" /> Collection
                         </div>
                         <div className={`nav-item ${activeTab === 'liked' ? 'active' : ''}`} onClick={() => setActiveTab('liked')}>
-                            <FiHeart /> Liked Tracks
+                            <FiHeart className="nav-icon" /> Liked Tracks
                         </div>
                     </div>
                 </div>
 
                 <div className="dashboard-area">
-                    {/* --- TOP BAR (User Role Badge Restored) --- */}
                     <div className="top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 30px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <div style={{ background: '#282828', padding: '5px 15px', borderRadius: '20px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <FiUser color="#8b5cf6" />
-                                <span style={{ fontWeight: 'bold' }}>{user.username}</span>
-                                <span style={{ opacity: 0.5, fontSize: '10px' }}>({user.role.toUpperCase()})</span>
-                            </div>
+                        {/* --- USER BADGE --- */}
+                        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '6px 16px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <FiUser color="#8b5cf6" />
+                            <span style={{ fontWeight: '700', fontSize: '14px' }}>{user.username}</span>
+                            <span style={{ fontSize: '10px', background: '#8b5cf6', padding: '2px 8px', borderRadius: '10px', color: 'white' }}>{user.role.toUpperCase()}</span>
                         </div>
                         <button className="btn btn-small btn-outline" onClick={() => setUser(null)}>Log out</button>
                     </div>
@@ -113,6 +111,7 @@ function App() {
                 </div>
             </div>
 
+            {/* --- PLAYER RENDERED --- */}
             {currentSong && (
                 <div className="player-bar">
                     <Player currentSong={currentSong} playNext={playNext} playPrevious={playPrevious} />
