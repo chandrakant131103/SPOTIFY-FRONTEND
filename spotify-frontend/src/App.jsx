@@ -1,175 +1,149 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import api from './api/axiosConfig';
+import React, { useState, useRef, useEffect } from 'react';
+// 🔥 Import createPortal to "teleport" the HD screen out of the bottom bar
+import { createPortal } from 'react-dom'; 
+import { FiVolume2, FiVolumeX, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FaPlayCircle, FaPauseCircle, FaStepBackward, FaStepForward } from "react-icons/fa";
 
-import { GoHomeFill, GoSearch } from "react-icons/go";
-import { VscLibrary } from "react-icons/vsc";
-import { FiHeart, FiTrendingUp, FiPlusSquare, FiExternalLink, FiUser } from "react-icons/fi";
-import { BsSoundwave, BsUpload } from "react-icons/bs";
+export default function Player({ currentSong }) {
+    const audioRef = useRef(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(1);
+    
+    // State to track if the HD screen is open
+    const [isExpanded, setIsExpanded] = useState(false);
+    
+    useEffect(() => {
+        if (currentSong && audioRef.current) {
+            audioRef.current.play();
+            setIsPlaying(true);
+        }
+    }, [currentSong]);
 
-import Auth from './components/Auth';
-import Dashboard from './components/Dashboard';
-import Player from './components/Player';
-import Search from './components/Search';
-import Library from './components/Library';
-import LikedSongs from './components/LikedSongs';
-import UploadMusic from './components/UploadMusic'; 
-import CreateAlbum from './components/CreateAlbum'; 
+    const togglePlayPause = () => {
+        if (!audioRef.current) return;
+        if (isPlaying) audioRef.current.pause();
+        else audioRef.current.play();
+        setIsPlaying(!isPlaying);
+    };
 
-function App() {
-    const [user, setUser] = useState(() => {
-        const saved = localStorage.getItem('pulse_session');
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            // ⚡ THE FIX: Re-attach token to Axios headers on refresh
-            if (parsed.token) {
-                api.defaults.headers.common['Authorization'] = `Bearer ${parsed.token}`;
-            }
-            return parsed;
-        }
-        return null;
-    });
-    
-    const [currentSong, setCurrentSong] = useState(null);
-    const [queue, setQueue] = useState([]); // 🎵 Queue for Skip/Auto-next
-    const [activeTab, setActiveTab] = useState('home');
-    const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const handleTimeUpdate = () => setCurrentTime(audioRef.current.currentTime);
+    const handleLoadedMetadata = () => setDuration(audioRef.current.duration);
+    
+    const handleSeek = (e) => {
+        const time = Number(e.target.value);
+        audioRef.current.currentTime = time;
+        setCurrentTime(time);
+    };
 
-    // ⚡ ADDED: Dynamic Skip/Next Logic
-    const playNext = useCallback(() => {
-        if (!currentSong || queue.length === 0) return;
-        const index = queue.findIndex(s => s._id === currentSong._id);
-        if (index !== -1 && index < queue.length - 1) {
-            setCurrentSong(queue[index + 1]);
-        }
-    }, [currentSong, queue]);
+    const handleVolume = (e) => {
+        const vol = Number(e.target.value);
+        audioRef.current.volume = vol;
+        setVolume(vol);
+    };
 
-    const playPrevious = useCallback(() => {
-        if (!currentSong || queue.length === 0) return;
-        const index = queue.findIndex(s => s._id === currentSong._id);
-        if (index > 0) {
-            setCurrentSong(queue[index - 1]);
-        }
-    }, [currentSong, queue]);
+    const formatTime = (time) => {
+        if (isNaN(time)) return "0:00";
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    };
 
-    // Enhanced setter to capture the list context for the queue
-    const handleSetSong = (song, list = []) => {
-        setCurrentSong(song);
-        if (list.length > 0) setQueue(list);
-    };
+    if (!currentSong) return (
+        <div style={{ width: '100%', textAlign: 'center', color: '#a7a7a7', fontSize: '14px', fontWeight: '600' }}>
+            Select a track to start listening
+        </div>
+    );
 
-    useEffect(() => {
-        const handleBeforeInstallPrompt = (e) => {
-            e.preventDefault();
-            setDeferredPrompt(e);
-        };
-        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-        return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    }, []);
+    // 🔥 HD IMAGE TRICK
+    const hdCover = currentSong.coverUrl || `https://picsum.photos/seed/${currentSong._id}/1080/1080`;
+    const smallCover = currentSong.coverUrl || `https://picsum.photos/seed/${currentSong._id}/400/400`;
 
-    useEffect(() => {
-        if (user) localStorage.setItem('pulse_session', JSON.stringify(user));
-        else localStorage.removeItem('pulse_session');
-    }, [user]);
+    return (
+        <>
+            {/* 1. AUDIO KEEPS PLAYING (Never unmounts, meaning no music interruptions!) */}
+            <audio ref={audioRef} src={currentSong.uri} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setIsPlaying(false)} />
 
-    const handleInstallApp = async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') setDeferredPrompt(null);
-        }
-    };
+            {/* 2. BOTTOM BAR (Click to expand) */}
+            <div 
+                onClick={() => setIsExpanded(true)}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+            >
+                <div className="player-left" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <img src={smallCover} alt="Cover" style={{ width: '56px', height: '56px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} />
+                    <div style={{ overflow: 'hidden' }}>
+                        <h4 style={{ fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.title}</h4>
+                        <p style={{ fontSize: '12px', color: '#a7a7a7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentSong.artist?.username || 'Unknown Artist'}</p>
+                    </div>
+                </div>
+                
+                <div className="player-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                    <div className="player-controls" style={{ display: 'flex', alignItems: 'center', gap: '20px', color: '#b3b3b3' }}>
+                        <FaStepBackward size={16} onClick={(e) => e.stopPropagation()} style={{ cursor: 'pointer' }} className="hover:text-white" />
+                        
+                        {/* Stop Propagation prevents the click from expanding the player when you just want to pause */}
+                        <div onClick={(e) => { e.stopPropagation(); togglePlayPause(); }} style={{ cursor: 'pointer', color: 'white' }}>
+                            {isPlaying ? <FaPauseCircle size={36} className="hover:scale-105" /> : <FaPlayCircle size={36} className="hover:scale-105" />}
+                        </div>
+                        
+                        <FaStepForward size={16} onClick={(e) => e.stopPropagation()} style={{ cursor: 'pointer' }} className="hover:text-white" />
+                    </div>
+                    
+                    <div className="player-seek" onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', fontSize: '12px', color: '#a7a7a7' }}>
+                        <span>{formatTime(currentTime)}</span>
+                        <input type="range" min="0" max={duration || 100} value={currentTime} onChange={(e) => { e.stopPropagation(); handleSeek(e); }} style={{ flex: 1 }} />
+                        <span>{formatTime(duration)}</span>
+                    </div>
+                </div>
 
-    const handleLogout = async () => {
-        try { await api.post('/auth/logout'); } 
-        catch (err) { console.error("Logout failed", err); } 
-        finally {
-            setUser(null);
-            setCurrentSong(null);
-            setActiveTab('home');
-            localStorage.removeItem('pulse_session');
-            delete api.defaults.headers.common['Authorization'];
-        }
-    };
+                <div className="player-right" onClick={(e) => e.stopPropagation()} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px', color: '#a7a7a7' }}>
+                    {volume === 0 ? <FiVolumeX size={20} /> : <FiVolume2 size={20} />}
+                    <input type="range" min="0" max="1" step="0.01" value={volume} onChange={(e) => { e.stopPropagation(); handleVolume(e); }} className="volume-slider" style={{ width: '80px' }} />
+                    <FiChevronUp size={24} style={{ cursor: 'pointer', marginLeft: '10px' }} onClick={() => setIsExpanded(true)} className="hover:text-white" />
+                </div>
+            </div>
 
-    if (!user) return <Auth setUser={setUser} />;
+            {/* 3. HD FULL SCREEN POP-UP (Teleported out of the bottom bar) */}
+            {isExpanded && createPortal(
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+                    background: 'linear-gradient(to bottom, #121212, #000000)', /* Clean Dark Theme */
+                    zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    padding: '40px 20px', overflowY: 'auto'
+                }}>
+                    {/* Minimize Button */}
+                    <div style={{ width: '100%', maxWidth: '600px', display: 'flex', justifyContent: 'flex-start', marginBottom: '20px' }}>
+                        <FiChevronDown size={36} color="#ffffff" style={{ cursor: 'pointer' }} onClick={() => setIsExpanded(false)} className="hover:scale-105" />
+                    </div>
 
-    return (
-        <div className="app-container">
-            <div className="main-wrapper">
-                <div className="sidebar">
-                    <div className="sidebar-panel">
-                        <div className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                            <div style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)', padding: '8px', borderRadius: '10px' }}>
-                                <BsSoundwave size={24} color="#fff" />
-                            </div>
-                            <h1 style={{ fontSize: '28px', fontWeight: '900', margin: 0 }}>Pulse</h1>
-                        </div>
-                        
-                        <div className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
-                            {user.role === 'artist' ? <><BsUpload className="nav-icon" /> Upload Track</> : <><GoHomeFill className="nav-icon"/> Home</>}
-                        </div>
-                        
-                        <div className={`nav-item ${activeTab === 'search' ? 'active' : ''}`} onClick={() => setActiveTab('search')}>
-                            <GoSearch className="nav-icon"/> Discover
-                        </div>
-                    </div>
+                    {/* Massive HD Album Art */}
+                    <img src={hdCover} alt="HD Cover" style={{ width: '100%', maxWidth: '400px', aspectRatio: '1/1', borderRadius: '12px', boxShadow: '0 20px 50px rgba(0,0,0,0.8)', objectFit: 'cover' }} />
 
-                    <div className="sidebar-panel" style={{ flex: 1 }}>
-                        <div className={`nav-item ${activeTab === 'library' ? 'active' : ''}`} onClick={() => setActiveTab('library')}>
-                            <VscLibrary className="nav-icon"/> Collection
-                        </div>
-                        <div className={`nav-item ${activeTab === 'liked' ? 'active' : ''}`} onClick={() => setActiveTab('liked')}>
-                            <FiHeart className="nav-icon"/> Liked Tracks
-                        </div>
-                    </div>
-                </div>
+                    {/* Big Song Info */}
+                    <div style={{ width: '100%', maxWidth: '400px', marginTop: '40px', textAlign: 'left' }}>
+                        <h2 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '8px', color: '#ffffff' }}>{currentSong.title}</h2>
+                        <p style={{ fontSize: '18px', color: '#a7a7a7' }}>{currentSong.artist?.username || 'Unknown Artist'}</p>
+                    </div>
 
-                <div className="dashboard-area">
-                    <div className="top-bar">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.05)', padding: '5px 15px', borderRadius: '20px' }}>
-                           <FiUser color="#8b5cf6" />
-                           <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{user.username}</span>
-                           <span style={{ fontSize: '10px', opacity: 0.6 }}>({user.role})</span>
-                        </div>
-                        
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                            {deferredPrompt && (
-                                <button onClick={handleInstallApp} className="btn btn-small" style={{ background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)' }}>
-                                    Install App
-                                </button>
-                            )}
-                            <button className="btn btn-small btn-outline" onClick={handleLogout}>Log out</button>
-                        </div>
-                    </div>
+                    {/* Big Seek Bar */}
+                    <div style={{ width: '100%', maxWidth: '400px', marginTop: '30px', display: 'flex', alignItems: 'center', gap: '15px', color: '#a7a7a7', fontSize: '14px' }}>
+                        <span>{formatTime(currentTime)}</span>
+                        <input type="range" min="0" max={duration || 100} value={currentTime} onChange={handleSeek} style={{ flex: 1, height: '6px' }} />
+                        <span>{formatTime(duration)}</span>
+                    </div>
 
-                    <div className="content-padding">
-                        {user.role === 'artist' ? (
-                            <>
-                                {activeTab === 'home' && <UploadMusic />}
-                                {activeTab === 'create-album' && <CreateAlbum />}
-                            </>
-                        ) : (
-                            <>
-                                {activeTab === 'home' && <Dashboard setCurrentSong={handleSetSong} />}
-                                {activeTab === 'search' && <Search setCurrentSong={handleSetSong} />}
-                                {activeTab === 'library' && <Library setCurrentSong={handleSetSong} />}
-                                {activeTab === 'liked' && <LikedSongs setCurrentSong={handleSetSong} />}
-                            </>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {user.role === 'user' && currentSong && (
-                <div className="player-bar">
-                    <Player 
-                        currentSong={currentSong} 
-                        playNext={playNext} 
-                        playPrevious={playPrevious} 
-                    />
-                </div>
-            )}
-        </div>
-    );
-}
-export default App;
+                    {/* Big Controls */}
+                    <div style={{ width: '100%', maxWidth: '400px', marginTop: '30px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px' }}>
+                        <FaStepBackward size={28} color="#b3b3b3" style={{ cursor: 'pointer' }} className="hover:text-white" />
+                        <div onClick={togglePlayPause} style={{ cursor: 'pointer', color: 'white' }}>
+                            {isPlaying ? <FaPauseCircle size={72} className="hover:scale-105" /> : <FaPlayCircle size={72} className="hover:scale-105" />}
+                        </div>
+                        <FaStepForward size={28} color="#b3b3b3" style={{ cursor: 'pointer' }} className="hover:text-white" />
+                    </div>
+                </div>,
+                document.body // This is the magic that tells it to render over the entire webpage!
+            )}
+        </>
+    );
+} updated player.jsx
